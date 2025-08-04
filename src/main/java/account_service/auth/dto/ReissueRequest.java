@@ -1,0 +1,11 @@
+package account_service.auth.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+
+@Getter
+public class ReissueRequest {
+
+    @NotBlank(message = "refresh 토크은 필수입니다.")
+    private String refreshToken;
+}
