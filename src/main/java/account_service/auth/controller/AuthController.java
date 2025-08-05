@@ -3,6 +3,8 @@ package account_service.auth.controller;
 import account_service.auth.user.CustomUserDetails;
 import account_service.auth.dto.ReissueRequest;
 import account_service.auth.dto.TokenResponse;
+import account_service.global.response.CommonResponse;
+import account_service.global.response.ResponseUtil;
 import account_service.user.dto.LoginRequest;
 import account_service.user.service.UserService;
 import jakarta.validation.Valid;
@@ -22,21 +24,24 @@ public class AuthController {
     private final UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@RequestBody @Valid LoginRequest request) {
+    public ResponseEntity<CommonResponse<TokenResponse>> login(@RequestBody @Valid LoginRequest request) {
         TokenResponse tokenResponse = userService.login(request);
-        return ResponseEntity.ok(tokenResponse);
+
+        return ResponseEntity.ok(ResponseUtil.success(tokenResponse));
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<CommonResponse<Void>> logout(@AuthenticationPrincipal CustomUserDetails userDetails) {
         userService.logout(userDetails.getId());
-        return ResponseEntity.ok().build();
+
+        return ResponseEntity.ok(ResponseUtil.success("성공적으로 로그아웃했습니다."));
     }
 
     @PostMapping("/reissue")
-    public ResponseEntity<TokenResponse> reissue(@RequestBody @Valid ReissueRequest request) {
+    public ResponseEntity<CommonResponse<TokenResponse>> reissue(@RequestBody @Valid ReissueRequest request) {
         TokenResponse tokenResponse = userService.reissue(request.getRefreshToken());
-        return ResponseEntity.ok(tokenResponse);
+
+        return ResponseEntity.ok(ResponseUtil.success(tokenResponse));
     }
 
 }

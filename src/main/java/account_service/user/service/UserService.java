@@ -107,7 +107,7 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUserInfo(Long userId, UpdateUserRequest request){
+    public UserInfoResponse updateUserInfo(Long userId, UpdateUserRequest request){
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
@@ -118,6 +118,8 @@ public class UserService {
         if(request.getPhone() != null){
             user.setPhone(request.getPhone());
         }
+
+        return new UserInfoResponse(user);
 
     }
 }
