@@ -1,6 +1,6 @@
 package account_service.user.controller;
 
-import account_service.user.dto.KakaoUserInfo;
+import account_service.auth.dto.KakaoUserInfo;
 import account_service.auth.user.CustomUserDetails;
 import account_service.global.response.CommonResponse;
 import account_service.global.response.ResponseUtil;

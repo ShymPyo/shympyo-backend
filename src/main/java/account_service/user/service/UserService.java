@@ -1,16 +1,14 @@
 package account_service.user.service;
 
+import account_service.auth.dto.KakaoUserInfo;
+import account_service.auth.dto.NaverUserInfo;
 import account_service.user.domain.UserRole;
-import account_service.user.dto.KakaoUserInfo;
+import account_service.user.dto.*;
 import account_service.auth.jwt.JwtTokenProvider;
 import account_service.auth.domain.RefreshToken;
 import account_service.auth.dto.TokenResponse;
 import account_service.auth.repository.RefreshTokenRepository;
 import account_service.user.domain.User;
-import account_service.user.dto.LoginRequest;
-import account_service.user.dto.SignUpRequest;
-import account_service.user.dto.UpdateUserRequest;
-import account_service.user.dto.UserInfoResponse;
 import account_service.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -124,6 +122,21 @@ public class UserService {
     }
 
     public Long findOrCreateByEmail(KakaoUserInfo userInfo) {
+        return userRepository.findByEmail(userInfo.email())
+                .map(User::getId)
+                .orElseGet(() -> {
+                    User newUser = User.builder()
+                            .email(userInfo.email())
+                            .name(userInfo.name())
+                            .password(null) // 소셜 로그인은 비번 X
+                            .role(UserRole.USER) // 기본 역할 부여
+                            .phone(userInfo.phone()) // ← 기본 값 넣어주기
+                            .build();
+                    return userRepository.save(newUser).getId();
+                });
+    }
+
+    public Long findOrCreateByEmail(NaverUserInfo userInfo) {
         return userRepository.findByEmail(userInfo.email())
                 .map(User::getId)
                 .orElseGet(() -> {

@@ -5,7 +5,7 @@ import account_service.auth.dto.TokenResponse;
 import account_service.auth.jwt.JwtTokenProvider;
 import account_service.auth.repository.RefreshTokenRepository;
 import account_service.user.domain.UserRole;
-import account_service.auth.dto.KakaoUserInfo;
+import account_service.auth.dto.NaverUserInfo;
 import account_service.user.service.UserService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,8 +21,7 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class KakaoOAuthService {
-
+public class NaverOAuthService {
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
@@ -30,18 +29,19 @@ public class KakaoOAuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    @Value("${kakao.client-id}")
+    @Value("${naver.client-id}")
     private String clientId;
 
-    @Value("${kakao.redirect-uri}")
+    @Value("${naver.redirect-uri}")
     private String redirectUri;
 
-    @Value("${kakao.client-secret}")
-    private String clientSecret; // 추가
+    @Value("${naver.client-secret}") // 오타
+    private String clientSecret;
 
-    public TokenResponse kakaoLogin(String code) {
-        String kakaoAccessToken = getAccessToken(code);
-        KakaoUserInfo userInfo = getUserInfo(kakaoAccessToken);
+
+    public TokenResponse naverLogin(String code) {
+        String NaverAccessToken = getAccessToken(code);
+        NaverUserInfo userInfo = getUserInfo(NaverAccessToken);
 
         if (userInfo.email() == null || userInfo.email().isBlank()) {
             throw new IllegalArgumentException("이메일 동의가 필요합니다.");
@@ -61,8 +61,6 @@ public class KakaoOAuthService {
 
         return new TokenResponse(accessToken, refreshToken);
     }
-
-
     private String getAccessToken(String code) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -70,31 +68,31 @@ public class KakaoOAuthService {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", clientId);
-        params.add("redirect_uri", redirectUri);
+        params.add("client_secret", clientSecret);
         params.add("code", code);
-        params.add("client-secret", clientSecret);
+        params.add("redirect_uri", redirectUri);
 
 
         HttpEntity<?> request = new HttpEntity<>(params, headers);
         ResponseEntity<String> response = restTemplate.postForEntity(
-                "https://kauth.kakao.com/oauth/token", request, String.class);
+                "https://nid.naver.com/oauth2.0/token", request, String.class);
 
         try {
             JsonNode json = objectMapper.readTree(response.getBody());
             return json.get("access_token").asText();
         } catch (Exception e) {
-            throw new RuntimeException("카카오 토큰 파싱 실패");
+            throw new RuntimeException("네이버 토큰 파싱 실패");
         }
     }
 
-    private KakaoUserInfo getUserInfo(String accessToken) {
+    private NaverUserInfo getUserInfo(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
 
         HttpEntity<?> request = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
-                "https://kapi.kakao.com/v2/user/me",
+                "https://openapi.naver.com/v1/nid/me",
                 HttpMethod.GET,
                 request,
                 String.class
@@ -102,35 +100,18 @@ public class KakaoOAuthService {
 
         try {
             JsonNode json = objectMapper.readTree(response.getBody());
-            Long kakaoId = json.get("id").asLong();
+            JsonNode responseNode = json.get("response");
+            String naverId = responseNode.get("id").asText(); // 보통 String으로 받는 게 맞음
 
-            JsonNode accountNode = json.path("kakao_account");
-            String email = accountNode.path("email").asText(null);
-            String rawPhone = accountNode.path("phone_number").asText(null);
-            String phone = formatPhoneNumber(rawPhone);
-            String name = accountNode.path("profile").path("nickname").asText(null);
+            String email = responseNode.path("email").asText(null);
+            String phone = responseNode.path("mobile").asText(null);
+            String name = responseNode.path("name").asText(null);
 
-            return new KakaoUserInfo(email, kakaoId, name, phone);
+
+            return new NaverUserInfo(email, naverId, name, phone);
 
         } catch (Exception e) {
-            throw new RuntimeException("카카오 사용자 정보 파싱 실패");
-        }
-    }
-
-    private String formatPhoneNumber(String rawPhone) {
-        if (rawPhone == null || !rawPhone.startsWith("+82")) {
-            return rawPhone; // 변환 불가할 경우 원본 반환
-        }
-
-        // +82 10-1234-5678 → 010-1234-5678
-        String formatted = rawPhone.replace("+82 ", "0");
-        formatted = formatted.replaceAll("[^0-9]", ""); // 숫자만 남기기
-
-        // 형식 맞춰서 하이픈 추가
-        if (formatted.length() == 11) {
-            return formatted.replaceFirst("(\\d{3})(\\d{4})(\\d{4})", "$1-$2-$3");
-        } else {
-            return formatted; // 예상 형식이 아니면 그냥 반환
+            throw new RuntimeException("네이버 사용자 정보 파싱 실패");
         }
     }
 }
