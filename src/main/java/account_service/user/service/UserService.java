@@ -7,11 +7,15 @@ import account_service.auth.repository.RefreshTokenRepository;
 import account_service.user.domain.User;
 import account_service.user.dto.LoginRequest;
 import account_service.user.dto.SignUpRequest;
+import account_service.user.dto.UpdateUserRequest;
 import account_service.user.dto.UserInfoResponse;
 import account_service.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -102,5 +106,20 @@ public class UserService {
         return new TokenResponse(newAccessToken, newRefreshToken);
     }
 
+    @Transactional
+    public UserInfoResponse updateUserInfo(Long userId, UpdateUserRequest request){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
+        if(request.getName() != null){
+            user.setName(request.getName());
+        }
+
+        if(request.getPhone() != null){
+            user.setPhone(request.getPhone());
+        }
+
+        return new UserInfoResponse(user);
+
+    }
 }
