@@ -40,7 +40,7 @@ public class UserService {
         userRepository.save(user);
 
         String accessToken = jwtTokenProvider.generateToken(user.getId(), user.getRole());
-        String refreshToken = jwtTokenProvider.generateRefreshToken(); // 새로 만들 예정
+        String refreshToken = jwtTokenProvider.generateRefreshToken();
 
         refreshTokenRepository.save(
                 RefreshToken.builder()

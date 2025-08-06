@@ -76,7 +76,7 @@ public class KakaoOAuthService {
         params.add("client_id", clientId);
         params.add("redirect_uri", redirectUri);
         params.add("code", code);
-        params.add("client-secret", clientSecret);
+        params.add("client_secret", clientSecret);
 
 
         HttpEntity<?> request = new HttpEntity<>(params, headers);

@@ -36,7 +36,7 @@ public class NaverOAuthService {
     @Value("${naver.redirect-uri}")
     private String redirectUri;
 
-    @Value("${naver.client-secret}") // 오타
+    @Value("${naver.client-secret}")
     private String clientSecret;
 
 

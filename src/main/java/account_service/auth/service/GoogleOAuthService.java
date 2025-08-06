@@ -36,7 +36,7 @@ public class GoogleOAuthService {
     @Value("${google.redirect-uri}")
     private String redirectUri;
 
-    @Value("${google.client-secret}") // 오타
+    @Value("${google.client-secret}")
     private String clientSecret;
 
     @Value("${google.token-uri}")
@@ -105,8 +105,6 @@ public class GoogleOAuthService {
         try {
             JsonNode json = objectMapper.readTree(response.getBody());
 
-            String googleId = json.get("id").asText(); // 보통 String으로 받는 게 맞음
-
             String email = json.get("email").asText(null);
             String googleID = json.get("id").asText(null);
             String givenName = json.path("given_name").asText(""); // 예: 길동
@@ -133,7 +131,7 @@ public class GoogleOAuthService {
                     request,
                     String.class
             );
-            log.info("People API 응답: " + response.getBody());
+
             JsonNode json = objectMapper.readTree(response.getBody());
             JsonNode phoneNumbers = json.path("phoneNumbers");
 

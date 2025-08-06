@@ -13,9 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("oauth/google")
+@RequestMapping("/oauth/google")
 @RequiredArgsConstructor
-
 public class GoogleOAuthController {
 
     private final GoogleOAuthService googleOAuthService;
