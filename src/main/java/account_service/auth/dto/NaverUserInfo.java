@@ -1,4 +1,4 @@
 package account_service.auth.dto;
 
-public record NaverUserInfo(String email, String naverId, String name, String phone) {
+public record NaverUserInfo(String socialId, String email, String name, String phone) implements SocialUserInfo {
 }

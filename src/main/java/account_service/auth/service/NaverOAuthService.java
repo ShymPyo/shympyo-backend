@@ -1,6 +1,7 @@
 package account_service.auth.service;
 
 import account_service.auth.domain.RefreshToken;
+import account_service.auth.dto.SocialLoginResult;
 import account_service.auth.dto.TokenResponse;
 import account_service.auth.jwt.JwtTokenProvider;
 import account_service.auth.repository.RefreshTokenRepository;
@@ -39,7 +40,7 @@ public class NaverOAuthService {
     private String clientSecret;
 
 
-    public TokenResponse naverLogin(String code) {
+    public SocialLoginResult naverLogin(String code) {
         String NaverAccessToken = getAccessToken(code);
         NaverUserInfo userInfo = getUserInfo(NaverAccessToken);
 
@@ -47,20 +48,24 @@ public class NaverOAuthService {
             throw new IllegalArgumentException("이메일 동의가 필요합니다.");
         }
 
-        Long userId = userService.findOrCreateByEmail(userInfo);
+        SocialLoginResult result = userService.findOrCreateByEmail(userInfo);
 
-        String accessToken = jwtTokenProvider.generateToken(userId, UserRole.USER);
+        String accessToken = jwtTokenProvider.generateToken(result.getUserId(), UserRole.USER);
         String refreshToken = jwtTokenProvider.generateRefreshToken();
+
+        result.setAccessToken(accessToken);
+        result.setRefreshToken(refreshToken);
 
         refreshTokenRepository.save(
                 RefreshToken.builder()
-                        .userId(userId)
+                        .userId(result.getUserId())
                         .token(refreshToken)
                         .build()
         );
 
-        return new TokenResponse(accessToken, refreshToken);
+        return result;
     }
+
     private String getAccessToken(String code) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -108,7 +113,7 @@ public class NaverOAuthService {
             String name = responseNode.path("name").asText(null);
 
 
-            return new NaverUserInfo(email, naverId, name, phone);
+            return new NaverUserInfo(naverId, email, name, phone);
 
         } catch (Exception e) {
             throw new RuntimeException("네이버 사용자 정보 파싱 실패");

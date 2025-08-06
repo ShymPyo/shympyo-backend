@@ -2,6 +2,7 @@ package account_service.auth.service;
 
 import account_service.auth.domain.RefreshToken;
 import account_service.auth.dto.GoogleUserInfo;
+import account_service.auth.dto.SocialLoginResult;
 import account_service.auth.dto.TokenResponse;
 import account_service.auth.jwt.JwtTokenProvider;
 import account_service.auth.repository.RefreshTokenRepository;
@@ -44,23 +45,31 @@ public class GoogleOAuthService {
     @Value("${google.user-info-uri}")
     private String userInfoUri;
 
-    public TokenResponse googleLogin(String code) {
-        String accessToken = getAccessToken(code);
-        GoogleUserInfo userInfo = getUserInfo(accessToken);
+    public SocialLoginResult googleLogin(String code) {
+        String GoogleAccessToken = getAccessToken(code);
+        GoogleUserInfo userInfo = getUserInfo(GoogleAccessToken);
 
         if (userInfo.email() == null || userInfo.email().isBlank()) {
             throw new IllegalArgumentException("이메일 동의가 필요합니다.");
         }
 
-        Long userId = userService.findOrCreateByEmail(userInfo);
+        SocialLoginResult result = userService.findOrCreateByEmail(userInfo);
 
 
-        String access = jwtTokenProvider.generateToken(userId, UserRole.USER);
-        String refresh = jwtTokenProvider.generateRefreshToken();
+        String accessToken = jwtTokenProvider.generateToken(result.getUserId(), UserRole.USER);
+        String refreshToken = jwtTokenProvider.generateRefreshToken();
 
-        refreshTokenRepository.save(new RefreshToken(userId, refresh));
+        result.setAccessToken(accessToken);
+        result.setRefreshToken(refreshToken);
 
-        return new TokenResponse(access, refresh);
+        refreshTokenRepository.save(
+                RefreshToken.builder()
+                        .userId(result.getUserId())
+                        .token(refreshToken)
+                        .build()
+        );
+
+        return result;
     }
 
     private String getAccessToken(String code) {
@@ -97,7 +106,6 @@ public class GoogleOAuthService {
             JsonNode json = objectMapper.readTree(response.getBody());
 
             String googleId = json.get("id").asText(); // 보통 String으로 받는 게 맞음
-            log.info(" API 응답: " + response.getBody());
 
             String email = json.get("email").asText(null);
             String googleID = json.get("id").asText(null);
@@ -105,7 +113,7 @@ public class GoogleOAuthService {
             String familyName = json.path("family_name").asText(""); // 예: 홍
             String fullName = familyName + givenName;
             String phone = getPhoneNumberFromGoogle(accessToken);
-            return new GoogleUserInfo(email, googleID, fullName, phone);
+            return new GoogleUserInfo(googleID, email, fullName, phone);
 
         } catch (Exception e) {
             throw new RuntimeException("구글 사용자 정보 파싱 실패", e);

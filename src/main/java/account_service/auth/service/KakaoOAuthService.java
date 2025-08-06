@@ -1,6 +1,7 @@
 package account_service.auth.service;
 
 import account_service.auth.domain.RefreshToken;
+import account_service.auth.dto.SocialLoginResult;
 import account_service.auth.dto.TokenResponse;
 import account_service.auth.jwt.JwtTokenProvider;
 import account_service.auth.repository.RefreshTokenRepository;
@@ -39,7 +40,7 @@ public class KakaoOAuthService {
     @Value("${kakao.client-secret}")
     private String clientSecret; // 추가
 
-    public TokenResponse kakaoLogin(String code) {
+    public SocialLoginResult kakaoLogin(String code) {
         String kakaoAccessToken = getAccessToken(code);
         KakaoUserInfo userInfo = getUserInfo(kakaoAccessToken);
 
@@ -47,19 +48,22 @@ public class KakaoOAuthService {
             throw new IllegalArgumentException("이메일 동의가 필요합니다.");
         }
 
-        Long userId = userService.findOrCreateByEmail(userInfo);
+        SocialLoginResult result = userService.findOrCreateByEmail(userInfo);
 
-        String accessToken = jwtTokenProvider.generateToken(userId, UserRole.USER);
+        String accessToken = jwtTokenProvider.generateToken(result.getUserId(), UserRole.USER);
         String refreshToken = jwtTokenProvider.generateRefreshToken();
+
+        result.setAccessToken(accessToken);
+        result.setRefreshToken(refreshToken);
 
         refreshTokenRepository.save(
                 RefreshToken.builder()
-                        .userId(userId)
+                        .userId(result.getUserId())
                         .token(refreshToken)
                         .build()
         );
 
-        return new TokenResponse(accessToken, refreshToken);
+        return result;
     }
 
 
@@ -102,7 +106,7 @@ public class KakaoOAuthService {
 
         try {
             JsonNode json = objectMapper.readTree(response.getBody());
-            Long kakaoId = json.get("id").asLong();
+            String kakaoId = json.get("id").asText();
 
             JsonNode accountNode = json.path("kakao_account");
             String email = accountNode.path("email").asText(null);
@@ -110,7 +114,7 @@ public class KakaoOAuthService {
             String phone = formatPhoneNumber(rawPhone);
             String name = accountNode.path("profile").path("nickname").asText(null);
 
-            return new KakaoUserInfo(email, kakaoId, name, phone);
+            return new KakaoUserInfo(kakaoId, email, name, phone);
 
         } catch (Exception e) {
             throw new RuntimeException("카카오 사용자 정보 파싱 실패");

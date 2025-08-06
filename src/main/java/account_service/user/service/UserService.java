@@ -1,13 +1,10 @@
 package account_service.user.service;
 
-import account_service.auth.dto.GoogleUserInfo;
-import account_service.auth.dto.KakaoUserInfo;
-import account_service.auth.dto.NaverUserInfo;
+import account_service.auth.dto.*;
 import account_service.user.domain.UserRole;
 import account_service.user.dto.*;
 import account_service.auth.jwt.JwtTokenProvider;
 import account_service.auth.domain.RefreshToken;
-import account_service.auth.dto.TokenResponse;
 import account_service.auth.repository.RefreshTokenRepository;
 import account_service.user.domain.User;
 import account_service.user.repository.UserRepository;
@@ -25,7 +22,7 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    public void signUp(SignUpRequest request){
+    public TokenResponse signUp(SignUpRequest request){
 
         // 존재 여부 판단
         if(userRepository.existsByEmail(request.getEmail())){
@@ -42,6 +39,17 @@ public class UserService {
 
         userRepository.save(user);
 
+        String accessToken = jwtTokenProvider.generateToken(user.getId(), user.getRole());
+        String refreshToken = jwtTokenProvider.generateRefreshToken(); // 새로 만들 예정
+
+        refreshTokenRepository.save(
+                RefreshToken.builder()
+                        .userId(user.getId())
+                        .token(refreshToken)
+                        .build()
+        );
+
+        return new TokenResponse(accessToken, refreshToken);
     }
 
     public TokenResponse login(LoginRequest request) {
@@ -122,48 +130,21 @@ public class UserService {
 
     }
 
-    public Long findOrCreateByEmail(KakaoUserInfo userInfo) {
+    public SocialLoginResult findOrCreateByEmail(SocialUserInfo userInfo) {
         return userRepository.findByEmail(userInfo.email())
-                .map(User::getId)
+                .map(user -> new SocialLoginResult(user.getId(), false)) // 기존 유저 → 로그인
                 .orElseGet(() -> {
                     User newUser = User.builder()
                             .email(userInfo.email())
                             .name(userInfo.name())
-                            .password(null) // 소셜 로그인은 비번 X
-                            .role(UserRole.USER) // 기본 역할 부여
-                            .phone(userInfo.phone()) // ← 기본 값 넣어주기
+                            .password(null)
+                            .role(UserRole.USER)
+                            .phone(userInfo.phone())
                             .build();
-                    return userRepository.save(newUser).getId();
+                    User saved = userRepository.save(newUser);
+                    return new SocialLoginResult(saved.getId(), true); // 새 유저 → 회원가입
                 });
     }
 
-    public Long findOrCreateByEmail(NaverUserInfo userInfo) {
-        return userRepository.findByEmail(userInfo.email())
-                .map(User::getId)
-                .orElseGet(() -> {
-                    User newUser = User.builder()
-                            .email(userInfo.email())
-                            .name(userInfo.name())
-                            .password(null) // 소셜 로그인은 비번 X
-                            .role(UserRole.USER) // 기본 역할 부여
-                            .phone(userInfo.phone()) // ← 기본 값 넣어주기
-                            .build();
-                    return userRepository.save(newUser).getId();
-                });
-    }
 
-    public Long findOrCreateByEmail(GoogleUserInfo userInfo) {
-        return userRepository.findByEmail(userInfo.email())
-                .map(User::getId)
-                .orElseGet(() -> {
-                    User newUser = User.builder()
-                            .email(userInfo.email())
-                            .name(userInfo.name())
-                            .password(null) // 소셜 로그인은 비번 X
-                            .role(UserRole.USER) // 기본 역할 부여
-                            .phone(userInfo.phone()) // ← 기본 값 넣어주기
-                            .build();
-                    return userRepository.save(newUser).getId();
-                });
-    }
 }

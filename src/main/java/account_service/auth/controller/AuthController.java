@@ -27,7 +27,7 @@ public class AuthController {
     public ResponseEntity<CommonResponse<TokenResponse>> login(@RequestBody @Valid LoginRequest request) {
         TokenResponse tokenResponse = userService.login(request);
 
-        return ResponseEntity.ok(ResponseUtil.success(tokenResponse));
+        return ResponseEntity.ok(ResponseUtil.success("로그인에 성공했습니다.", tokenResponse));
     }
 
     @PostMapping("/logout")

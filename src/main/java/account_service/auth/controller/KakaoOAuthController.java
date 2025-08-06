@@ -1,5 +1,6 @@
 package account_service.auth.controller;
 
+import account_service.auth.dto.SocialLoginResult;
 import account_service.auth.dto.TokenResponse;
 import account_service.auth.service.KakaoOAuthService;
 import account_service.global.response.CommonResponse;
@@ -20,7 +21,10 @@ public class KakaoOAuthController {
 
     @GetMapping("/callback")
     public ResponseEntity<CommonResponse<TokenResponse>> callback(@RequestParam("code") String code){
-        TokenResponse token = kakaoOAuthService.kakaoLogin(code);
-        return ResponseEntity.ok(ResponseUtil.success(token));
+        SocialLoginResult result = kakaoOAuthService.kakaoLogin(code);
+        String message = result.isNewUser() ? "회원가입이 완료되었습니다." : "로그인에 성공했습니다.";
+        TokenResponse token = new TokenResponse(result.getAccessToken(), result.getRefreshToken());
+
+        return ResponseEntity.ok(ResponseUtil.success(message,token));
     }
 }
