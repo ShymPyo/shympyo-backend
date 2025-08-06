@@ -1,5 +1,6 @@
 package account_service.user.service;
 
+import account_service.auth.dto.GoogleUserInfo;
 import account_service.auth.dto.KakaoUserInfo;
 import account_service.auth.dto.NaverUserInfo;
 import account_service.user.domain.UserRole;
@@ -137,6 +138,21 @@ public class UserService {
     }
 
     public Long findOrCreateByEmail(NaverUserInfo userInfo) {
+        return userRepository.findByEmail(userInfo.email())
+                .map(User::getId)
+                .orElseGet(() -> {
+                    User newUser = User.builder()
+                            .email(userInfo.email())
+                            .name(userInfo.name())
+                            .password(null) // 소셜 로그인은 비번 X
+                            .role(UserRole.USER) // 기본 역할 부여
+                            .phone(userInfo.phone()) // ← 기본 값 넣어주기
+                            .build();
+                    return userRepository.save(newUser).getId();
+                });
+    }
+
+    public Long findOrCreateByEmail(GoogleUserInfo userInfo) {
         return userRepository.findByEmail(userInfo.email())
                 .map(User::getId)
                 .orElseGet(() -> {
