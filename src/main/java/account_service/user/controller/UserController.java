@@ -1,5 +1,6 @@
 package account_service.user.controller;
 
+import account_service.user.dto.KakaoUserInfo;
 import account_service.auth.user.CustomUserDetails;
 import account_service.global.response.CommonResponse;
 import account_service.global.response.ResponseUtil;
@@ -12,8 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -48,5 +47,11 @@ public class UserController {
 
         UserInfoResponse updated = userService.updateUserInfo(userDetails.getId(), request);
         return ResponseEntity.ok(ResponseUtil.success("회원 정보 수정 완료",updated));
+    }
+
+    @PostMapping("/oauth")
+    public ResponseEntity<Long> findOrCreateUser(@RequestBody KakaoUserInfo userInfo) {
+        Long userId = userService.findOrCreateByEmail(userInfo);
+        return ResponseEntity.ok(userId);
     }
 }
