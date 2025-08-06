@@ -1,5 +1,7 @@
 package account_service.user.controller;
 
+import account_service.auth.dto.KakaoUserInfo;
+import account_service.auth.dto.TokenResponse;
 import account_service.auth.user.CustomUserDetails;
 import account_service.global.response.CommonResponse;
 import account_service.global.response.ResponseUtil;
@@ -13,8 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -23,9 +23,10 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    public ResponseEntity<CommonResponse<Void>> signup(@RequestBody @Valid SignUpRequest request){
-        userService.signUp(request);
-        return ResponseEntity.ok(ResponseUtil.success("성공적으로 회원가입이 완료 되었습니다."));
+    public ResponseEntity<CommonResponse<TokenResponse>> signup(@RequestBody @Valid SignUpRequest request){
+        TokenResponse token = userService.signUp(request);
+
+        return ResponseEntity.ok(ResponseUtil.success("회원가입이 완료 되었습니다.", token));
     }
 
 
@@ -49,4 +50,10 @@ public class UserController {
         UserInfoResponse updated = userService.updateUserInfo(userDetails.getId(), request);
         return ResponseEntity.ok(ResponseUtil.success("회원 정보 수정 완료",updated));
     }
+
+//    @PostMapping("/oauth")
+//    public ResponseEntity<Long> findOrCreateUser(@RequestBody KakaoUserInfo userInfo) {
+//        Long userId = userService.findOrCreateByEmail(userInfo);
+//        return ResponseEntity.ok(userId);
+//    }
 }
