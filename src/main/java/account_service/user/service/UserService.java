@@ -1,17 +1,17 @@
 package account_service.user.service;
 
+import account_service.auth.dto.*;
+import account_service.user.domain.UserRole;
+import account_service.user.dto.*;
 import account_service.auth.jwt.JwtTokenProvider;
 import account_service.auth.domain.RefreshToken;
-import account_service.auth.dto.TokenResponse;
 import account_service.auth.repository.RefreshTokenRepository;
 import account_service.user.domain.User;
-import account_service.user.dto.LoginRequest;
-import account_service.user.dto.SignUpRequest;
-import account_service.user.dto.UserInfoResponse;
 import account_service.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +22,7 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    public void signUp(SignUpRequest request){
+    public TokenResponse signUp(SignUpRequest request){
 
         // 존재 여부 판단
         if(userRepository.existsByEmail(request.getEmail())){
@@ -39,6 +39,17 @@ public class UserService {
 
         userRepository.save(user);
 
+        String accessToken = jwtTokenProvider.generateToken(user.getId(), user.getRole());
+        String refreshToken = jwtTokenProvider.generateRefreshToken();
+
+        refreshTokenRepository.save(
+                RefreshToken.builder()
+                        .userId(user.getId())
+                        .token(refreshToken)
+                        .build()
+        );
+
+        return new TokenResponse(accessToken, refreshToken);
     }
 
     public TokenResponse login(LoginRequest request) {
@@ -100,6 +111,39 @@ public class UserService {
         );
 
         return new TokenResponse(newAccessToken, newRefreshToken);
+    }
+
+    @Transactional
+    public UserInfoResponse updateUserInfo(Long userId, UpdateUserRequest request){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        if(request.getName() != null){
+            user.setName(request.getName());
+        }
+
+        if(request.getPhone() != null){
+            user.setPhone(request.getPhone());
+        }
+
+        return new UserInfoResponse(user);
+
+    }
+
+    public SocialLoginResult findOrCreateByEmail(SocialUserInfo userInfo) {
+        return userRepository.findByEmail(userInfo.email())
+                .map(user -> new SocialLoginResult(user.getId(), false)) // 기존 유저 → 로그인
+                .orElseGet(() -> {
+                    User newUser = User.builder()
+                            .email(userInfo.email())
+                            .name(userInfo.name())
+                            .password(null)
+                            .role(UserRole.USER)
+                            .phone(userInfo.phone())
+                            .build();
+                    User saved = userRepository.save(newUser);
+                    return new SocialLoginResult(saved.getId(), true); // 새 유저 → 회원가입
+                });
     }
 
 
