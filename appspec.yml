@@ -1,0 +1,10 @@
+version: 0.0
+os: linux
+files: []  # 서버에 따로 복사할 앱 파일 없음
+hooks:
+  BeforeInstall:
+    - location: deploy/stop_old.sh
+      timeout: 60
+  AfterInstall:
+    - location: deploy/pull_and_run.sh
+      timeout: 600
