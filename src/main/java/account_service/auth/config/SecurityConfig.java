@@ -4,6 +4,7 @@ import account_service.auth.jwt.JwtAuthenticationFilter;
 import account_service.auth.jwt.JwtTokenProvider;
 import account_service.auth.user.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,6 +14,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -28,6 +32,11 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                "/", "/error",
+                                // 헬스 체크
+                                "/actuator/health",
+
+                                // 공개 API
                                 "/api/auth/**",
                                 "/api/users/signup",
                                 "/api/users/oauth",
@@ -39,6 +48,19 @@ public class SecurityConfig {
                         UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource(
+            @Value("${app.cors.allowed-origins:*}") String originsCsv) {
+        var cfg = new CorsConfiguration();
+        for (String o : originsCsv.split(",")) cfg.addAllowedOriginPattern(o.trim());
+        cfg.addAllowedHeader("*");
+        cfg.addAllowedMethod("*");
+        cfg.setAllowCredentials(true);
+        var src = new UrlBasedCorsConfigurationSource();
+        src.registerCorsConfiguration("/**", cfg);
+        return src;
     }
 
     @Bean
