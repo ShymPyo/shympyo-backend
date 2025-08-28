@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shympyo-backend-config
+  namespace: shympyo-dev
+data:
+  SPRING_PROFILES_ACTIVE: "dev"

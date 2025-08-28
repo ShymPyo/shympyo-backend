@@ -1,0 +1,14 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shympyo-backend
+  namespace: shympyo-dev
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+        - name: app
+          resources:
+            requests: { cpu: "100m", memory: "128Mi" }
+            limits:   { cpu: "300m", memory: "384Mi" }
