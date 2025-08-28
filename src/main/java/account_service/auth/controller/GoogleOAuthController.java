@@ -21,10 +21,11 @@ public class GoogleOAuthController {
 
     @GetMapping("/callback")
     public ResponseEntity<CommonResponse<TokenResponse>> callback(@RequestParam("code") String code){
+
         SocialLoginResult result = googleOAuthService.googleLogin(code);
         String message = result.isNewUser() ? "회원가입이 완료되었습니다." : "로그인에 성공했습니다.";
         TokenResponse token = new TokenResponse(result.getAccessToken(), result.getRefreshToken());
 
-        return ResponseEntity.ok(ResponseUtil.success(message, token));
+        return ResponseUtil.success(message, token);
     }
 }

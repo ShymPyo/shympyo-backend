@@ -25,23 +25,28 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<CommonResponse<TokenResponse>> login(@RequestBody @Valid LoginRequest request) {
+
         TokenResponse tokenResponse = userService.login(request);
 
-        return ResponseEntity.ok(ResponseUtil.success("로그인에 성공했습니다.", tokenResponse));
+        return ResponseUtil.success("로그인에 성공했습니다.", tokenResponse);
+
     }
 
     @PostMapping("/logout")
     public ResponseEntity<CommonResponse<Void>> logout(@AuthenticationPrincipal CustomUserDetails userDetails) {
+
         userService.logout(userDetails.getId());
 
-        return ResponseEntity.ok(ResponseUtil.success("성공적으로 로그아웃했습니다."));
+        return ResponseUtil.success("성공적으로 로그아웃했습니다.");
+
     }
 
     @PostMapping("/reissue")
     public ResponseEntity<CommonResponse<TokenResponse>> reissue(@RequestBody @Valid ReissueRequest request) {
+
         TokenResponse tokenResponse = userService.reissue(request.getRefreshToken());
 
-        return ResponseEntity.ok(ResponseUtil.success(tokenResponse));
+        return ResponseUtil.success(tokenResponse);
     }
 
 }
