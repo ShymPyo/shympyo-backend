@@ -1,7 +1,7 @@
 package shympyo.rental.controller;
 
-import account_service.auth.user.CustomUserDetails;
-import account_service.global.response.ResponseUtil;
+import shympyo.auth.user.CustomUserDetails;
+import shympyo.global.response.ResponseUtil;
 import shympyo.rental.dto.EnterRequest;
 import shympyo.rental.dto.ExitResponse;
 import shympyo.rental.dto.RentalResponse;

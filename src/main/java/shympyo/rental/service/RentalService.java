@@ -6,11 +6,11 @@ import shympyo.rental.dto.ExitResponse;
 import shympyo.rental.dto.RentalResponse;
 import shympyo.rental.repository.PlaceRepository;
 import shympyo.rental.repository.RentalRepository;
-import account_service.user.domain.User;
-import account_service.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import shympyo.user.domain.User;
+import shympyo.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 

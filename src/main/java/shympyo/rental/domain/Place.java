@@ -1,13 +1,11 @@
 package shympyo.rental.domain;
 
-import account_service.user.domain.User;
 import jakarta.persistence.*;
 import lombok.Getter;
+import shympyo.user.domain.User;
 
 import java.time.DayOfWeek;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Date;
 
 @Entity
 @Getter

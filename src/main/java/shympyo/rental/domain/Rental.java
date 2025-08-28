@@ -1,6 +1,6 @@
 package shympyo.rental.domain;
 
-import account_service.user.domain.User;
+import shympyo.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
