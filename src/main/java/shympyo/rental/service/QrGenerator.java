@@ -1,4 +1,4 @@
-package account_service.qr;
+package shympyo.rental.service;
 
 import com.google.zxing.*;
 import com.google.zxing.common.BitMatrix;

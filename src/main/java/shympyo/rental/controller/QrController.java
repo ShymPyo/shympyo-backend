@@ -1,8 +1,8 @@
-package account_service.rental.controller;
+package shympyo.rental.controller;
 
-import account_service.rental.domain.Place;
-import account_service.rental.repository.PlaceRepository;
-import account_service.qr.QrGenerator;
+import shympyo.rental.domain.Place;
+import shympyo.rental.repository.PlaceRepository;
+import shympyo.rental.service.QrGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

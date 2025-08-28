@@ -1,6 +1,6 @@
-package account_service.rental.repository;
+package shympyo.rental.repository;
 
-import account_service.rental.domain.Rental;
+import shympyo.rental.domain.Rental;
 import account_service.user.domain.User;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;

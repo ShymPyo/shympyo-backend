@@ -1,4 +1,4 @@
-package account_service.rental.domain;
+package shympyo.rental.domain;
 
 import account_service.user.domain.User;
 import jakarta.persistence.*;

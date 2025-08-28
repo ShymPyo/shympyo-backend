@@ -1,11 +1,11 @@
-package account_service.rental.controller;
+package shympyo.rental.controller;
 
 import account_service.auth.user.CustomUserDetails;
 import account_service.global.response.ResponseUtil;
-import account_service.rental.dto.EnterRequest;
-import account_service.rental.dto.ExitResponse;
-import account_service.rental.dto.RentalResponse;
-import account_service.rental.service.RentalService;
+import shympyo.rental.dto.EnterRequest;
+import shympyo.rental.dto.ExitResponse;
+import shympyo.rental.dto.RentalResponse;
+import shympyo.rental.service.RentalService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

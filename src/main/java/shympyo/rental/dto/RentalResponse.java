@@ -1,4 +1,4 @@
-package account_service.rental.dto;
+package shympyo.rental.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

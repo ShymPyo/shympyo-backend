@@ -1,11 +1,11 @@
-package account_service.rental.service;
+package shympyo.rental.service;
 
-import account_service.rental.domain.Place;
-import account_service.rental.domain.Rental;
-import account_service.rental.dto.ExitResponse;
-import account_service.rental.dto.RentalResponse;
-import account_service.rental.repository.PlaceRepository;
-import account_service.rental.repository.RentalRepository;
+import shympyo.rental.domain.Place;
+import shympyo.rental.domain.Rental;
+import shympyo.rental.dto.ExitResponse;
+import shympyo.rental.dto.RentalResponse;
+import shympyo.rental.repository.PlaceRepository;
+import shympyo.rental.repository.RentalRepository;
 import account_service.user.domain.User;
 import account_service.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
