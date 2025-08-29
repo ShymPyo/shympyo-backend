@@ -5,9 +5,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shympyo.letter.domain.Letter;
-import shympyo.letter.dto.CountLetterResponse;
-import shympyo.letter.dto.LetterResponse;
-import shympyo.letter.dto.SendLetterRequest;
+import shympyo.letter.dto.*;
 import shympyo.letter.repository.LetterRepository;
 import shympyo.rental.domain.Place;
 import shympyo.rental.repository.PlaceRepository;
@@ -29,7 +27,7 @@ public class LetterService {
     private final RentalRepository rentalRepository;
 
     @Transactional
-    public LetterResponse send(Long writerId, SendLetterRequest request) {
+    public SendLetterResponse send(Long writerId, SendLetterRequest request) {
 
         User writer = userRepository.findById(writerId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
@@ -50,7 +48,7 @@ public class LetterService {
         );
 
         // 여기서 바로 DTO로 변환하면 LAZY 프록시 직렬화 문제 없음
-        return new LetterResponse(
+        return new SendLetterResponse(
                 saved.getId(),
                 saved.getPlace().getId(),
                 saved.getPlace().getName(),
@@ -73,18 +71,34 @@ public class LetterService {
         }
 
         return letterRepository.findAllByOwner(ownerId).stream()
-                .map(l -> new LetterResponse(
-                        l.getId(),
-                        l.getPlace().getId(),
-                        l.getPlace().getName(),
-                        l.getWriter().getId(),
-                        l.getWriter().getName(),
-                        l.getContent(),
-                        l.isRead(),
-                        l.getReadAt(),
-                        l.getCreatedAt()
-                ))
+                .map(l -> {
+                    var w = l.getWriter();
+                    var writerInfo = new WriterInfo(
+                            w.getId(),
+                            w.getName(),
+                            w.getEmail(),
+                            maskPhone(w.getPhone()) // 필요 없으면 w.getPhone() 그대로
+                    );
+
+                    return new LetterResponse(
+                            l.getId(),
+                            l.getPlace().getId(),
+                            l.getPlace().getName(),
+                            writerInfo,
+                            l.getContent(),
+                            l.isRead(),
+                            l.getReadAt(),
+                            l.getCreatedAt()
+                    );
+                })
                 .toList();
+
+    }
+
+    private String maskPhone(String phone) {
+        if (phone == null) return null;
+        // 010-1234-5678 / 01012345678 모두 처리
+        return phone.replaceAll("(\\d{3})-?(\\d{3,4})-?(\\d{4})", "$1-****-$3");
     }
 
     @Transactional

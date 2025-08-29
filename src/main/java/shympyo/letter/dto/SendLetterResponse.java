@@ -6,12 +6,13 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter @AllArgsConstructor
-public class LetterResponse {
+public class SendLetterResponse {
 
     private Long id;
     private Long placeId;
     String placeName;
-    WriterInfo writerInfo;
+    Long writerId;
+    String writeName;
     String content;
     boolean isRead;
     LocalDateTime readAt;

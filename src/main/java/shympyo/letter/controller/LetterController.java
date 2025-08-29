@@ -11,6 +11,7 @@ import shympyo.global.response.ResponseUtil;
 import shympyo.letter.dto.CountLetterResponse;
 import shympyo.letter.dto.LetterResponse;
 import shympyo.letter.dto.SendLetterRequest;
+import shympyo.letter.dto.SendLetterResponse;
 import shympyo.letter.service.LetterService;
 
 import java.util.List;
@@ -31,11 +32,11 @@ public class LetterController {
     }
 
     @PostMapping("/send")
-    public ResponseEntity<CommonResponse<LetterResponse>> send(
+    public ResponseEntity<CommonResponse<SendLetterResponse>> send(
             @AuthenticationPrincipal CustomUserDetails writer,
             @Valid @RequestBody SendLetterRequest request){
 
-        LetterResponse response = letterService.send(writer.getId(), request);
+        SendLetterResponse response = letterService.send(writer.getId(), request);
 
         return ResponseUtil.success("성공적으로 편지를 보냈습니다.", response);
     }
