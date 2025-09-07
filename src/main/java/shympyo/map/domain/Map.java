@@ -1,18 +1,34 @@
 package shympyo.map.domain;
 
-import lombok.*;
+import jakarta.persistence.*;
+import lombok.Getter;
 
+
+@Entity
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Map {
-    private int mapId;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long Id;
+
+    @Column(length = 100, nullable = false)
     private String name;
-    private String description;
-    private float longitude;
-    private float latitude;
+
+    @Column(length = 100)
+    private String content;
+
+    @Column(nullable = false)
+    private double longitude;
+
+    @Column(nullable = false)
+    private double latitude;
+
+    @Column(length = 200)
     private String address;
-    private String type;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private PlaceType type;
+
 }
