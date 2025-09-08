@@ -1,12 +1,12 @@
 package shympyo.map.dto;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import shympyo.map.domain.PlaceType;
 
 @Getter
-@AllArgsConstructor
-public class NearbyMapDto {
+@Builder
+public class PlaceDetailResponse {
 
     private Long id;
 
@@ -14,11 +14,13 @@ public class NearbyMapDto {
 
     private String address;
 
-    private PlaceType type;
+    private String content;
 
     private double latitude;
 
     private double longitude;
 
-    private double distanceM;
+    private PlaceType type;
+
+
 }
