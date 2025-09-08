@@ -1,75 +1,126 @@
 package shympyo.map.service;
 
-import shympyo.map.domain.Map;
-import shympyo.map.dto.MapResponse;
-import shympyo.map.dto.MapDistanceResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import shympyo.map.domain.Map;
+import shympyo.map.dto.NearbyListResponse;
+import shympyo.map.dto.NearbyMapResponse;
+import shympyo.map.dto.PlaceDetailResponse;
+import shympyo.map.repository.MapRepository;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class MapService {
-    private final List<Map> maps = new ArrayList<>();
 
-    public MapService() {
-        maps.add(Map.builder()
-                .mapId(1)
-                .name("지도1")
-                .description("설명1")
-                .longitude(127.0f)
-                .latitude(37.5f)
-                .address("서울시")
-                .type("typeA")
-                .build());
-        maps.add(Map.builder()
-                .mapId(2)
-                .name("지도2")
-                .description("설명2")
-                .longitude(128.0f)
-                .latitude(36.5f)
-                .address("부산시")
-                .type("typeB")
-                .build());
+    private final MapRepository mapRepository;
+    private static final double EARTH_R = 6371000.0; // 지구 반지름(m)
+
+
+    // 조회하기
+    // 현재 좌표를 기준으로 반경 몇 미터 안에 장소를 반환
+    public List<NearbyMapResponse> findNearby(double lat, double lon, int radiusMeters, int limit) {
+        // 1) 파라미터 가드
+        final int radius   = Math.max(1, Math.min(radiusMeters, 5_000)); // 1m ~ 5km
+        final int maxLimit = Math.max(1, Math.min(limit, 200));
+
+        // 2) 바운딩 박스(deg)
+        final double latDeg = radius / 111_320.0; // 위도 1도 ≈ 111.32km
+        double cosLat = Math.cos(Math.toRadians(lat));
+        if (Math.abs(cosLat) < 1e-12) cosLat = 1e-12; // 극지방 분모 0 방지
+        final double lonDeg = radius / (111_320.0 * cosLat);
+
+        final double minLat = lat - latDeg, maxLat = lat + latDeg;
+        final double minLon = lon - lonDeg, maxLon = lon + lonDeg;
+
+        // 3) 후보 조회 (인덱스 권장: CREATE INDEX IF NOT EXISTS map_lat_lon_idx ON map(latitude, longitude))
+        List<shympyo.map.domain.Map> candidates =
+                mapRepository.findInBoundingBox(minLat, maxLat, minLon, maxLon);
+
+        // 4) 거리 계산(중간 보관) → 반경 필터 → 거리 오름차순 정렬 → DTO로 투영 → 제한
+        record Cand(shympyo.map.domain.Map m, double dist) {}
+
+        return candidates.stream()
+                .map(m -> new Cand(m, haversine(lat, lon, m.getLatitude(), m.getLongitude())))
+                .filter(c -> c.dist() <= radius)
+                .sorted(Comparator.comparingDouble(Cand::dist))
+                .limit(maxLimit)
+                .map(c -> {
+                    var m = c.m();
+                    return new NearbyMapResponse(
+                            m.getId(),
+                            m.getLatitude(),
+                            m.getLongitude(),
+                            m.getType()
+                    );
+                })
+                .toList();
     }
 
-    public List<MapResponse> getAllMaps() {
-        List<MapResponse> result = new ArrayList<>();
-        for (Map map : maps) {
-            result.add(MapResponse.builder()
-                    .mapId(map.getMapId())
-                    .name(map.getName())
-                    .description(map.getDescription())
-                    .longitude(map.getLongitude())
-                    .latitude(map.getLatitude())
-                    .address(map.getAddress())
-                    .type(map.getType())
-                    .build());
-        }
-        return result;
+    public List<NearbyListResponse> findNearbyList(double lat, double lon, int radiusMeters, int limit) {
+        // 파라미터 가드
+        final int radius   = Math.max(1, Math.min(radiusMeters, 5_000)); // 1m ~ 5km
+        final int maxLimit = Math.max(1, Math.min(limit, 200));
+
+        // 바운딩 박스(degree)
+        final double latDeg = radius / 111_320.0; // 위도 1도 ≈ 111.32km
+        double cosLat = Math.cos(Math.toRadians(lat));
+        if (Math.abs(cosLat) < 1e-12) cosLat = 1e-12; // 극지방 분모 0 방지
+        final double lonDeg = radius / (111_320.0 * cosLat);
+
+        final double minLat = lat - latDeg, maxLat = lat + latDeg;
+        final double minLon = lon - lonDeg, maxLon = lon + lonDeg;
+
+        // 후보 조회 (인덱스 권장: CREATE INDEX IF NOT EXISTS map_lat_lon_idx ON map(latitude, longitude))
+        List<shympyo.map.domain.Map> candidates =
+                mapRepository.findInBoundingBox(minLat, maxLat, minLon, maxLon);
+
+        // 거리 계산 → 반경 필터 → 거리 정렬 → DTO 매핑 → 제한
+        record Cand(shympyo.map.domain.Map m, double dist) {}
+
+        return candidates.stream()
+                .map(m -> new Cand(m, haversine(lat, lon, m.getLatitude(), m.getLongitude())))
+                .filter(c -> c.dist() <= radius)
+                .sorted(Comparator.comparingDouble(Cand::dist))
+                .limit(maxLimit)
+                .map(c -> {
+                    var m = c.m();
+                    return new NearbyListResponse(
+                            m.getId(),
+                            m.getName(),
+                            m.getAddress(),
+                            m.getContent(),    // LOB이면 길 수 있음
+                            m.getType(),
+                            c.dist()
+                    );
+                })
+                .toList();
     }
 
-    public List<MapDistanceResponse> getDistances(double userLat, double userLng) {
-        List<MapDistanceResponse> result = new ArrayList<>();
-        for (Map map : maps) {
-            double distance = calculateDistance(userLat, userLng, map.getLatitude(), map.getLongitude());
-            result.add(MapDistanceResponse.builder()
-                    .mapId(map.getMapId())
-                    .name(map.getName())
-                    .distance(distance)
-                    .build());
-        }
-        return result;
+    public PlaceDetailResponse findPlace(Long placeId){
+
+        Map map = mapRepository.findById(placeId)
+                .orElseThrow(()-> new IllegalArgumentException("해당 장소가 없습니다."));
+
+        return PlaceDetailResponse.builder()
+                .id(map.getId())
+                .name(map.getName())
+                .type(map.getType())
+                .longitude(map.getLongitude())
+                .address(map.getAddress())
+                .latitude(map.getLatitude())
+                .build();
     }
 
-    private double calculateDistance(double lat1, double lng1, double lat2, double lng2) {
-        double R = 6371000;
+    // 하버사인 공식
+    private static double haversine(double lat1, double lon1, double lat2, double lon2) {
         double dLat = Math.toRadians(lat2 - lat1);
-        double dLng = Math.toRadians(lng2 - lng1);
-        double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.pow(Math.sin(dLat / 2), 2) +
                 Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                        Math.sin(dLng/2) * Math.sin(dLng/2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        return R * c;
+                        Math.pow(Math.sin(dLon / 2), 2);
+        return 2 * EARTH_R * Math.asin(Math.sqrt(a));
     }
 }
