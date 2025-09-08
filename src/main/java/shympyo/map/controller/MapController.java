@@ -1,32 +1,31 @@
 package shympyo.map.controller;
 
-import shympyo.map.dto.MapResponse;
-import shympyo.map.dto.MapDistanceResponse;
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.ResponseEntity;
+import shympyo.global.response.CommonResponse;
+import shympyo.global.response.ResponseUtil;
+import shympyo.map.dto.NearbyMapDto;
 import shympyo.map.service.MapService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+
 @RestController
 @RequestMapping("/api/map")
+@RequiredArgsConstructor
 public class MapController {
+
     private final MapService mapService;
 
-    public MapController(MapService mapService) {
-        this.mapService = mapService;
+    @GetMapping("/nearby")
+    public ResponseEntity<CommonResponse<List<NearbyMapDto>>> nearby(
+            @RequestParam double lat,
+            @RequestParam double lon,
+            @RequestParam(defaultValue = "100") int radius, // meter
+            @RequestParam(defaultValue = "100") int limit
+    ) {
+        return ResponseUtil.success(mapService.findNearby(lat, lon, radius, limit));
     }
-
-    @GetMapping("/all")
-    public List<MapResponse> getAllMaps() {
-        return mapService.getAllMaps();
-    }
-
-    @GetMapping("/distances")
-    public List<MapDistanceResponse> getDistances(
-            @RequestParam double latitude,
-            @RequestParam double longitude) {
-        return mapService.getDistances(latitude, longitude);
-    }
-
-
 }
