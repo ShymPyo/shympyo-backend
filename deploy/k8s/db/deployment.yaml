@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shympyo-db-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shympyo-db
+  template:
+    metadata:
+      labels:
+        app: shympyo-db
+    spec:
+      containers:
+        - name: postgres-container
+          image: postgres:15
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: shympyo
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: shympyo-db-secret
+                  key: POSTGRES_PASSWORD
