@@ -30,19 +30,30 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+	implementation 'com.google.zxing:core:3.5.3'
+	implementation 'com.google.zxing:javase:3.5.3'
+
+	// === PostgreSQL + PostGIS ===
+	implementation("org.hibernate.orm:hibernate-spatial:6.5.2.Final")
+	implementation("org.locationtech.jts:jts-core:1.19.0")
+	implementation("org.postgresql:postgresql:42.7.4")
+
+
+	// === JWT ===
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
-	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+	runtimeOnly   'io.jsonwebtoken:jjwt-impl:0.11.5'
+	runtimeOnly   'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
+	// === Lombok ===
 	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'org.postgresql:postgresql:42.7.4'
-	runtimeOnly 'com.h2database:h2'
-
 	annotationProcessor 'org.projectlombok:lombok'
+
+	// === Test ===
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testImplementation 'com.h2database:h2:2.2.224'
 }
+
 
 tasks.named('test') {
 	useJUnitPlatform()
