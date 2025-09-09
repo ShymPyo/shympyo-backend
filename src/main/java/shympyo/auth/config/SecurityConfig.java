@@ -35,7 +35,7 @@ public class SecurityConfig {
                                 "/", "/error",
                                 // 헬스 체크
                                 "/actuator/health",
-
+                                "/actuator/health/**",
                                 // 공개 API
                                 "/api/auth/**",
                                 "/api/users/signup",

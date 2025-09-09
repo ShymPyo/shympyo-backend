@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: shympyo-backend
-  namespace: shympyo-dev
+  name: shympyo-service
 spec:
   type: LoadBalancer
-  selector: { app: shympyo-backend }
+  selector: { app: shympyo-app }
   ports:
-    - port: 80
+    - name: http
+      port: 80
       targetPort: 8080
