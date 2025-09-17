@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shympyo-db-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shympyo-db
+  template:
+    metadata:
+      labels:
+        app: shympyo-db
+    spec:
+      terminationGracePeriodSeconds: 60
+      securityContext:
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        runAsNonRoot: false
+
+      containers:
+        - name: postgres-container
+          image: postgres:15
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: shympyo
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: shympyo-db-secret
+                  key: POSTGRES_PASSWORD
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata  # 하위 디렉터리로 지정
+          volumeMounts:
+            - name: db-storage
+              mountPath: /var/lib/postgresql/data
+          # 초기 부팅/리커버리 대비
+          startupProbe:
+            exec:
+              command: ["pg_isready","-U","postgres","-d","shympyo"]
+            failureThreshold: 30
+            periodSeconds: 5
+          readinessProbe:
+            exec:
+              command: ["pg_isready","-U","postgres","-d","shympyo"]
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command: ["pg_isready","-U","postgres","-d","shympyo"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+      volumes:
+        - name: db-storage
+          persistentVolumeClaim:
+            claimName: shympyo-db-pvc

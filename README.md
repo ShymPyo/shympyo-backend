@@ -1,15 +1,12 @@
-# account-service
+# 쉼표 백엔드
 
-사용자 인증 및 계정 관리 서비스입니다.  
-JWT 기반 인증, 회원가입, 로그인, 토큰 재발급, 로그아웃 기능을 제공합니다.
 
 ## ✅ 주요 기능
 
-- 회원가입 (Sign up)
-- 로그인 (Login) + Access/Refresh Token 발급
-- Access Token 재발급 (Reissue)
-- 로그아웃 (Logout)
-- 사용자 정보 조회 (`/api/users/me`)
+- 회원서비스
+- 맵서비스
+- 편지서비스
+- 대여서비스
 
 ## 🛠️ 기술 스택
 

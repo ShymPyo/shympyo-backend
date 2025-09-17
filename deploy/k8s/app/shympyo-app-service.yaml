@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: shympyo-service
+spec:
+  type: ClusterIP
+  selector:
+    app: shympyo-app
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080

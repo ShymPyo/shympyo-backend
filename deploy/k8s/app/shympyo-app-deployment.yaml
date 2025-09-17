@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shympyo-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: shympyo-app
+  template:                # ← selector와 같은 레벨이어야 함
+    metadata:
+      labels:
+        app: shympyo-app
+    spec:
+      containers:
+        - name: shympyo-container
+          image: shympyo.kr.ncr.ntruss.com/shympyo-backend:1.0.7   # 태그 명시 권장
+          imagePullPolicy: IfNotPresent   # 태그가 latest면 Always가 기본, 명시 권장
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: shympyo-backend-config
+            - secretRef:
+                name: shympyo-backend-secret
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 24   # 최대 2분 대기(5s * 24)
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 6
