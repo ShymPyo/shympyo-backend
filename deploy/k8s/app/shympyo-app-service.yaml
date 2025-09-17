@@ -3,9 +3,10 @@ kind: Service
 metadata:
   name: shympyo-service
 spec:
-  type: LoadBalancer
-  selector: { app: shympyo-app }
+  type: ClusterIP
+  selector:
+    app: shympyo-app
   ports:
     - name: http
-      port: 80
+      port: 8080
       targetPort: 8080
