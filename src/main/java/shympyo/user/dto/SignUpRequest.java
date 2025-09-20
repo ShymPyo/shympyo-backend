@@ -1,5 +1,6 @@
 package shympyo.user.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import shympyo.user.domain.UserRole;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -10,20 +11,26 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@Schema(description = "회원가입 요청 DTO")
 public class SignUpRequest {
 
+    @Schema(description = "회원 이메일", example = "user@example.com")
     @Email(message = "이메일 형식이 올바르지 않습니다.")
     @NotBlank(message = "이메일은 필수 입력입니다.")
     private String email;
 
+    @Schema(description = "비밀번호 (8~20자)", example = "P@ssw0rd!")
     @NotBlank(message = "패스워드는 필수 입력입니다.")
     private String password;
 
+    @Schema(description = "회원 이름", example = "홍길동")
     @NotBlank(message = "이름은 필수 입력입니다.")
     private String name;
 
+    @Schema(description = "전화번호", example = "010-1234-5678")
     @NotBlank(message = "전화번호는 필수 입력입니다.")
     private String phone;
 
+    @Schema(description = "회원 역할 (기본 USER)", example = "USER", defaultValue = "USER")
     private UserRole role = UserRole.USER;
 }

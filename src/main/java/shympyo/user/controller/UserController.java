@@ -1,5 +1,7 @@
 package shympyo.user.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import shympyo.auth.dto.TokenResponse;
 import shympyo.auth.user.CustomUserDetails;
 import shympyo.global.response.CommonResponse;
@@ -14,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+
+@Tag(name="User")
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -21,6 +25,7 @@ public class UserController {
 
     private final UserService userService;
 
+    @Operation(summary = "회원가입")
     @PostMapping("/signup")
     public ResponseEntity<CommonResponse<TokenResponse>> signup(@RequestBody @Valid SignUpRequest request){
 
@@ -29,7 +34,7 @@ public class UserController {
         return ResponseUtil.success("회원가입이 완료되었습니다.",token);
     }
 
-
+    @Operation(summary = "회원정보조회", description = "JWT의 사용자 PK를 사용해 내 프로필을 조회한다.")
     @GetMapping("/me")
     public ResponseEntity<CommonResponse<UserInfoResponse>> getMyInfo(@AuthenticationPrincipal CustomUserDetails userDetails){
 
@@ -39,6 +44,7 @@ public class UserController {
         return ResponseUtil.success(userInfo);
     }
 
+    @Operation(summary = "회원정보수정", description = "닉네임, 전화번호 등 일부 필드를 부분 수정한다.")
     @PatchMapping("/me")
     public ResponseEntity<CommonResponse<UserInfoResponse>> updateUserInfo(
             @AuthenticationPrincipal CustomUserDetails userDetails,
