@@ -29,7 +29,7 @@ public class AuthController {
     @Operation(
             summary = "일반 로그인",
             description = "이메일과 비밀번호로 로그인하여 AccessToken/RefreshToken을 발급받는다.",
-            security = {} // 전역 JWT 보안 제외
+            security = {}
     )
     @PostMapping("/login")
     public ResponseEntity<CommonResponse<TokenResponse>> login(@RequestBody @Valid LoginRequest request) {
@@ -56,7 +56,7 @@ public class AuthController {
     @Operation(
             summary = "토큰 재발급",
             description = "RefreshToken을 이용해 새로운 AccessToken/RefreshToken을 발급받는다.",
-            security = {} // 보통 재발급은 AccessToken 만료 상태에서 요청하므로 JWT 보안 제외
+            security = {}
     )
     @PostMapping("/reissue")
     public ResponseEntity<CommonResponse<TokenResponse>> reissue(@RequestBody @Valid ReissueRequest request) {

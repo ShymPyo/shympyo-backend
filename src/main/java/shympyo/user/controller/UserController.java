@@ -25,7 +25,7 @@ public class UserController {
 
     private final UserService userService;
 
-    @Operation(summary = "회원가입")
+    @Operation(summary = "회원가입", security = {})
     @PostMapping("/signup")
     public ResponseEntity<CommonResponse<TokenResponse>> signup(@RequestBody @Valid SignUpRequest request){
 

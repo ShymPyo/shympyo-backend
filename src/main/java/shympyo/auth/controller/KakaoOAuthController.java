@@ -25,7 +25,7 @@ public class KakaoOAuthController {
     @Operation(
             summary = "카카오 인가 코드 교환",
             description = "프론트가 받은 인가 코드(code)를 백엔드로 전달하면, 백엔드가 카카오 토큰 엔드포인트로 교환한다.",
-            security = {} // 전역 JWT 제외
+            security = {}
     )
     @GetMapping("/callback")
     public ResponseEntity<CommonResponse<TokenResponse>> callback(@RequestParam("code") String code){
