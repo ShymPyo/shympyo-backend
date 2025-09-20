@@ -1,5 +1,7 @@
 package shympyo.auth.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import shympyo.auth.user.CustomUserDetails;
 import shympyo.auth.dto.ReissueRequest;
 import shympyo.auth.dto.TokenResponse;
@@ -19,10 +21,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
+@Tag(name = "Auth", description = "인증/인가 관련 API")
 public class AuthController {
 
     private final UserService userService;
 
+    @Operation(
+            summary = "일반 로그인",
+            description = "이메일과 비밀번호로 로그인하여 AccessToken/RefreshToken을 발급받는다.",
+            security = {}
+    )
     @PostMapping("/login")
     public ResponseEntity<CommonResponse<TokenResponse>> login(@RequestBody @Valid LoginRequest request) {
 
@@ -32,6 +40,10 @@ public class AuthController {
 
     }
 
+    @Operation(
+            summary = "로그아웃",
+            description = "현재 로그인한 사용자의 RefreshToken을 무효화한다."
+    )
     @PostMapping("/logout")
     public ResponseEntity<CommonResponse<Void>> logout(@AuthenticationPrincipal CustomUserDetails userDetails) {
 
@@ -41,6 +53,11 @@ public class AuthController {
 
     }
 
+    @Operation(
+            summary = "토큰 재발급",
+            description = "RefreshToken을 이용해 새로운 AccessToken/RefreshToken을 발급받는다.",
+            security = {}
+    )
     @PostMapping("/reissue")
     public ResponseEntity<CommonResponse<TokenResponse>> reissue(@RequestBody @Valid ReissueRequest request) {
 
