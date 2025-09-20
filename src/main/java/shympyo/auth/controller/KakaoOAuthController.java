@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/oauth/kakao")
 @RequiredArgsConstructor
-@Tag(name = "OAuth", description = "소셜 로그인 (카카오)")
+@Tag(name = "OAuth", description = "소셜 로그인")
 public class KakaoOAuthController {
 
     private final KakaoOAuthService kakaoOAuthService;

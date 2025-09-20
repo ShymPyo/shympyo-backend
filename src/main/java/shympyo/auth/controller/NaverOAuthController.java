@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "OAuth", description = "소셜 로그인 (네이버)")
+@Tag(name = "OAuth", description = "소셜 로그인")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/oauth/naver")
