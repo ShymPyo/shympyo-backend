@@ -33,6 +33,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/", "/error",
+
+                                // 스웨거
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/v3/api-docs.yaml",
+
                                 // 헬스 체크
                                 "/actuator/health",
                                 "/actuator/health/**",
