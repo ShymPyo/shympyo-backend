@@ -35,6 +35,9 @@ public class UserService {
                 .name(request.getName())
                 .role(request.getRole())
                 .phone(request.getPhone())
+                .nickname(request.getNickname())
+                .bio(request.getBio())
+                .imageUrl(request.getImageUrl())
                 .build();
 
         userRepository.save(user);
@@ -118,13 +121,9 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
-        if(request.getName() != null){
-            user.setName(request.getName());
-        }
+        request.applyTo(user);
 
-        if(request.getPhone() != null){
-            user.setPhone(request.getPhone());
-        }
+        userRepository.save(user);
 
         return new UserInfoResponse(user);
 
@@ -138,6 +137,8 @@ public class UserService {
                             .email(userInfo.email())
                             .name(userInfo.name())
                             .password(null)
+                            .nickname(userInfo.name())
+                            .bio("자기 소개를 입력해주세요.")
                             .role(UserRole.USER)
                             .phone(userInfo.phone())
                             .build();

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.time.Duration;
 import java.util.Date;
 
 @Component
@@ -16,8 +17,11 @@ public class JwtTokenProvider {
     @Value("${jwt.secret}")
     private String secret;
 
-    @Value("${jwt.expiration}") // 밀리초 단위 (예: 3600000 = 1시간)
-    private long expiration;
+    @Value("${jwt.access-expiration}")
+    private Duration accessExpiration;
+
+    @Value("${jwt.refresh-expiration}")
+    private Duration refreshExpiration;
 
     private Key key;
 
@@ -26,11 +30,9 @@ public class JwtTokenProvider {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    // accessToken 생성
     public String generateToken(Long userId, UserRole role) {
         Date now = new Date();
-        Date expiry = new Date(now.getTime() + expiration);
-
+        Date expiry = new Date(now.getTime() + accessExpiration.toMillis());
         return Jwts.builder()
                 .setSubject(String.valueOf(userId))
                 .claim("role", role.name())
@@ -40,11 +42,9 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    // refreshToken 생성
     public String generateRefreshToken() {
         Date now = new Date();
-        Date expiry = new Date(now.getTime() + expiration * 24); // 예: 24시간 유효
-
+        Date expiry = new Date(now.getTime() + refreshExpiration.toMillis());
         return Jwts.builder()
                 .setIssuedAt(now)
                 .setExpiration(expiry)
@@ -52,27 +52,18 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    // 토큰 유효성 검증
     public boolean validateToken(String token) {
-        try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
-        }
+        try { Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token); return true; }
+        catch (JwtException | IllegalArgumentException e) { return false; }
     }
 
-    // 사용자 ID 추출
     public Long getUserId(String token) {
-        Claims claims = Jwts.parserBuilder().setSigningKey(key).build()
-                .parseClaimsJws(token).getBody();
-        return Long.parseLong(claims.getSubject());
+        Claims c = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+        return Long.parseLong(c.getSubject());
     }
 
-    // 사용자 역할 추출 (옵션)
     public String getRole(String token) {
-        Claims claims = Jwts.parserBuilder().setSigningKey(key).build()
-                .parseClaimsJws(token).getBody();
-        return claims.get("role", String.class);
+        Claims c = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+        return c.get("role", String.class);
     }
 }
