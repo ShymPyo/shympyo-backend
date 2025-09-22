@@ -120,6 +120,8 @@ public class UserService {
 
         request.applyTo(user);
 
+        userRepository.save(user);
+
         return new UserInfoResponse(user);
 
     }
