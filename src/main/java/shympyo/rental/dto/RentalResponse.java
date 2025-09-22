@@ -3,6 +3,7 @@ package shympyo.rental.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
+import shympyo.rental.domain.Rental;
 
 import java.time.LocalDateTime;
 
@@ -19,4 +20,12 @@ public class RentalResponse {
 
     @Schema(description = "입장 시각", example = "2025-09-20T14:00:00")
     private LocalDateTime startTime;
+
+    public static RentalResponse from(Rental rental) {
+        return RentalResponse.builder()
+                .rentalId(rental.getId())
+                .placeName(rental.getPlace().getName())
+                .startTime(rental.getStartTime())
+                .build();
+    }
 }
