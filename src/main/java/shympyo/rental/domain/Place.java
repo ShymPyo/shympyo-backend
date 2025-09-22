@@ -59,7 +59,7 @@ public class Place {
     public void updatePatch(PlaceUpdateRequest request) {
         if (request.getName() != null) this.name = request.getName();
         if (request.getContent() != null) this.content = request.getContent();
-        if (request.getImage() != null) this.image = request.getImage();
+        if (request.getImageUrl() != null) this.imageUrl = request.getImageUrl();
         if (request.getMaxCapacity() != null) this.maxCapacity = request.getMaxCapacity();
         if (request.getAddress() != null) this.address = request.getAddress();
         if (request.getOpenTime() != null) this.openTime = request.getOpenTime();
