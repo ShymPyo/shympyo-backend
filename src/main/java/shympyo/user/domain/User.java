@@ -48,5 +48,8 @@ public class User {
         if (this.imageUrl == null) {
             this.imageUrl = "default_image_1";
         }
+        if(this.bio == null){
+            this.bio = "자기 소개를 입력해주세요";
+        }
     }
 }

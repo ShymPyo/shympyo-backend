@@ -22,8 +22,12 @@ public class UpdateUserRequest {
     @Schema(description = "프로필 이미지 URL (수정 시 전달)", example = "https://example.com/profile.jpg")
     private String imageUrl;
 
+    @Schema(description = "자기소개 (수정 시 전달)", example = "안녕하세요! 여행을 좋아하는 홍길동입니다.")
+    private String bio;
+
     public boolean isEmpty() {
-        return name == null && phone == null;
+        return name == null && phone == null && nickname == null
+                && imageUrl == null && bio == null;
     }
 
     public void applyTo(User user) {
@@ -38,6 +42,9 @@ public class UpdateUserRequest {
         }
         if (this.imageUrl != null) {
             user.setImageUrl(this.imageUrl);
+        }
+        if (this.bio != null) {
+            user.setBio(this.bio);
         }
     }
 }

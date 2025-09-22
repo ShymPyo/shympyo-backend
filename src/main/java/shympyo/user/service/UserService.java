@@ -35,6 +35,9 @@ public class UserService {
                 .name(request.getName())
                 .role(request.getRole())
                 .phone(request.getPhone())
+                .nickname(request.getNickname())
+                .bio(request.getBio())
+                .imageUrl(request.getImageUrl())
                 .build();
 
         userRepository.save(user);
@@ -134,6 +137,8 @@ public class UserService {
                             .email(userInfo.email())
                             .name(userInfo.name())
                             .password(null)
+                            .nickname(userInfo.name())
+                            .bio("자기 소개를 입력해주세요.")
                             .role(UserRole.USER)
                             .phone(userInfo.phone())
                             .build();

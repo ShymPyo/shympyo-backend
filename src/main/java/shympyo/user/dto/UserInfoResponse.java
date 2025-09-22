@@ -27,6 +27,9 @@ public class UserInfoResponse {
     @Schema(description = "프로필 이미지 URL", example = "https://example.com/profile.jpg")
     private String imageUrl;
 
+    @Schema(description = "자기소개", example = "안녕하세요! 여행을 좋아하는 홍길동입니다.")
+    private String bio;
+
     @Schema(description = "회원 역할", example = "CUSTOMER")
     private UserRole role;
 
@@ -37,6 +40,7 @@ public class UserInfoResponse {
         this.nickname = user.getNickname();
         this.phone = user.getPhone();
         this.imageUrl = user.getImageUrl();
+        this.bio = user.getBio();
         this.role = user.getRole();
     }
 }
