@@ -1,7 +1,7 @@
 package shympyo.rental.domain;
 
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.*;
 import shympyo.rental.dto.PlaceUpdateRequest;
 import shympyo.user.domain.User;
 
@@ -10,6 +10,9 @@ import java.time.LocalTime;
 
 @Entity
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 public class Place {
 
     @Id
@@ -47,7 +50,7 @@ public class Place {
     @Column(name = "weekly_holiday")
     private DayOfWeek weeklyHoliday;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 50, unique = true)
     private String code;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
