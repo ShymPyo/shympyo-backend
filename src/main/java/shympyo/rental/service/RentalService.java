@@ -1,5 +1,6 @@
 package shympyo.rental.service;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import shympyo.rental.domain.Place;
@@ -71,36 +72,7 @@ public class RentalService {
         return ExitResponse.from(rental);
     }
 
-    @Transactional(readOnly = true)
-    public PlaceResponse getPlace(Long userId) {
-        User provider = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        if (provider.getRole() != UserRole.PROVIDER) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "제공자가 아닙니다.");
-        }
-
-        Place place = placeRepository.findByOwnerId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("등록된 장소가 없습니다."));
-
-        return PlaceResponse.from(place);
-    }
-
-    @Transactional
-    public void updatePlace(Long userId, PlaceUpdateRequest request){
-        User provider = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-
-        if (provider.getRole() != UserRole.PROVIDER) {
-            throw new IllegalArgumentException("제공자가 아닙니다.");
-        }
-
-        Place place = placeRepository.findByOwnerId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("등록된 장소가 없습니다."));
-
-
-        place.updatePatch(request);
-    }
 
     @Transactional(readOnly = true)
     public List<CurrentRentalResponse> getRental(Long userId){
@@ -135,7 +107,6 @@ public class RentalService {
         return rentalRepository.findAllHistoryByPlace(place.getId());
 
     }
-
 
 
     

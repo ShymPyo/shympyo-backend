@@ -19,4 +19,6 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
     Optional<Place> findByCodeForUpdate(@Param("code") String code);
 
     Optional<Place> findByOwnerId(Long ownerId);
+
+    boolean existsByCode(String code);
 }
