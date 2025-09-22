@@ -118,13 +118,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
-        if(request.getName() != null){
-            user.setName(request.getName());
-        }
-
-        if(request.getPhone() != null){
-            user.setPhone(request.getPhone());
-        }
+        request.applyTo(user);
 
         return new UserInfoResponse(user);
 
