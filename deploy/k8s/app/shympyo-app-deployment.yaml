@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: shympyo-container
-          image: shympyo.kr.ncr.ntruss.com/shympyo-backend:1.0.11
+          image: shympyo.kr.ncr.ntruss.com/shympyo-backend:1.0.12
           imagePullPolicy: IfNotPresent   # 태그가 latest면 Always가 기본, 명시 권장
           ports:
             - containerPort: 8080
