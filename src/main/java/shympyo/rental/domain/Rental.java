@@ -44,7 +44,6 @@ public class Rental {
         this.status = (status == null ? "using" : status);
     }
 
-    /** 이용 시작 헬퍼 */
     public static Rental start(Place place, User user, LocalDateTime now) {
         return Rental.builder()
                 .place(place)
@@ -54,7 +53,6 @@ public class Rental {
                 .build();
     }
 
-    /** 이용 종료 헬퍼 */
     public void end(LocalDateTime endAt) {
         if (!"using".equals(this.status)) return;
         this.endTime = endAt;

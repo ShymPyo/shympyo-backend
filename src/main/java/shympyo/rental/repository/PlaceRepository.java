@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface PlaceRepository extends JpaRepository<Place, Long> {
@@ -17,4 +18,7 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
     @Query("select p from Place p where p.code = :code")
     Optional<Place> findByCodeForUpdate(@Param("code") String code);
 
+    Optional<Place> findByOwnerId(Long ownerId);
+
+    boolean existsByCode(String code);
 }

@@ -33,4 +33,5 @@ public class QrGenerator {
         // 예: https://app.example.com/api/enter-code?c=PLACE-A-001
         return publicBaseUrl + "/api/enter-code?c=" + URLEncoder.encode(placeCode, StandardCharsets.UTF_8);
     }
+
 }
