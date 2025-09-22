@@ -25,7 +25,8 @@ data:
   SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: "true"
   SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: "org.hibernate.spatial.dialect.postgis.PostgisPG95Dialect"
 
-  JWT_EXPIRATION: "3600000"
+  JWT_ACCESS_EXPIRATION: "1d"
+  JWT_REFRESH_EXPIRATION: "30d"
 
   KAKAO_CLIENT_ID: "0fb482395dac9508f8a824aa177bba19"
   KAKAO_REDIRECT_URI: "http://localhost:8081/oauth/kakao/callback"
