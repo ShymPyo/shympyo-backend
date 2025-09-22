@@ -26,6 +26,9 @@ public class User {
     @Column(nullable = true, length = 50)
     private String nickname;
 
+    @Column(length = 500)
+    private String bio;
+
     @Column(nullable = true)
     private String phone;
 
@@ -37,4 +40,13 @@ public class User {
     private UserRole role;
 
 
+    @PrePersist
+    public void prePersist() {
+        if (this.nickname == null) {
+            this.nickname = name;
+        }
+        if (this.imageUrl == null) {
+            this.imageUrl = "default_image_1";
+        }
+    }
 }
