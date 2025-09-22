@@ -23,7 +23,7 @@ public class Place {
     private String content;
 
     @Column(length = 500)
-    private String image;
+    private String imageUrl;
 
     @Column(name = "max_capacity", nullable = false)
     private Integer maxCapacity;
@@ -59,10 +59,12 @@ public class Place {
     public void updatePatch(PlaceUpdateRequest request) {
         if (request.getName() != null) this.name = request.getName();
         if (request.getContent() != null) this.content = request.getContent();
+        if (request.getImage() != null) this.image = request.getImage();
         if (request.getMaxCapacity() != null) this.maxCapacity = request.getMaxCapacity();
         if (request.getAddress() != null) this.address = request.getAddress();
         if (request.getOpenTime() != null) this.openTime = request.getOpenTime();
         if (request.getCloseTime() != null) this.closeTime = request.getCloseTime();
         if (request.getWeeklyHoliday() != null) this.weeklyHoliday = request.getWeeklyHoliday();
+
     }
 }
