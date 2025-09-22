@@ -18,7 +18,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<CommonResponse<Object>> handleIllegalArgumentException(IllegalArgumentException e){
         log.error("[Error] 잘못된 값을 입력했습니다.", e);
-        //return ResponseEntity.badRequest().body(ResponseUtil.fail(e.getMessage()));
+        return ResponseUtil.fail(e.getMessage());
+
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<CommonResponse<Object>> handleIllegalStateException(IllegalStateException e){
+        log.error("[Error] 잘못된 값을 입력했습니다.", e);
         return ResponseUtil.fail(e.getMessage());
 
     }
