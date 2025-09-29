@@ -6,6 +6,9 @@ data:
   # server
   SERVER_PORT: "8080"
 
+  PUBLIC_BASE_URL: "https://shympyo.kro.kr"
+
+
   # actuator
   MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED: "true"
   MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,info,metrics"
