@@ -20,5 +20,18 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
 
     Optional<Place> findByOwnerId(Long ownerId);
 
+    @Query("""
+        SELECT m
+        FROM Map m
+        WHERE m.latitude  BETWEEN :minLat AND :maxLat
+          AND m.longitude BETWEEN :minLon AND :maxLon
+    """)
+    List<Place> findInBoundingBox(
+            double minLat, double maxLat,
+            double minLon, double maxLon
+    );
+
     boolean existsByCode(String code);
+
+
 }

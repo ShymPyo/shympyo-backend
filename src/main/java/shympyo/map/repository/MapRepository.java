@@ -25,4 +25,16 @@ public interface MapRepository extends JpaRepository<Map, Long> {
             @Param("maxLon") double maxLon
     );
 
+    @Query("""
+        SELECT m
+        FROM Map m
+        WHERE m.latitude  BETWEEN :minLat AND :maxLat
+          AND m.longitude BETWEEN :minLon AND :maxLon
+          AND m.type IN :types
+    """)
+    List<shympyo.map.domain.Map> findInBoundingBox(
+            double minLat, double maxLat,
+            double minLon, double maxLon,
+            List<shympyo.map.domain.PlaceType> types
+    );
 }
