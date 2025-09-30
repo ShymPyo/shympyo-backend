@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import shympyo.rental.domain.Place;
+import shympyo.rental.domain.PlaceStatus;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
@@ -35,6 +36,8 @@ public class PlaceResponse {
 
     private DayOfWeek weeklyHoliday;
 
+    private PlaceStatus status;
+
 
     public static PlaceResponse from(Place place) {
         return PlaceResponse.builder()
@@ -49,6 +52,7 @@ public class PlaceResponse {
                 .openTime(place.getOpenTime())
                 .closeTime(place.getCloseTime())
                 .weeklyHoliday(place.getWeeklyHoliday())
+                .status(place.getStatus())
                 .build();
     }
 }

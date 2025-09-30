@@ -72,4 +72,9 @@ public class Place {
         if (request.getCloseTime() != null) this.closeTime = request.getCloseTime();
         if (request.getWeeklyHoliday() != null) this.weeklyHoliday = request.getWeeklyHoliday();
     }
+
+    public void activate()   { this.status = PlaceStatus.ACTIVE; }
+    public void deactivate() { this.status = PlaceStatus.INACTIVE; }
+    public void maintenance() { this.status = PlaceStatus.MAINTENANCE; }
+    public void delete() { this.status = PlaceStatus.DELETED; }
 }
