@@ -22,7 +22,7 @@ public class Place {
     @Column(length = 100, nullable = false)
     private String name;
 
-    @Lob
+    @Column(columnDefinition = "text")
     private String content;
 
     @Column(length = 500)
