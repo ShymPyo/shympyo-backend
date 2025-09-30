@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 @Schema(description = "퇴장 응답 DTO")
-public class ExitResponse {
+public class UserExitResponse {
 
     @Schema(description = "대여 ID", example = "123")
     private Long rentalId;
@@ -24,8 +24,8 @@ public class ExitResponse {
     @Schema(description = "퇴장 시각", example = "2025-09-20T16:30:00")
     private LocalDateTime endTime;
 
-    public static ExitResponse from(Rental rental) {
-        return ExitResponse.builder()
+    public static UserExitResponse from(Rental rental) {
+        return UserExitResponse.builder()
                 .rentalId(rental.getId())
                 .placeName(rental.getPlace().getName())
                 .startTime(rental.getStartTime())

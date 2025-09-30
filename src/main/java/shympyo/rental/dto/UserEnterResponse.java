@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 @Schema(description = "입장(대여 시작) 응답 DTO")
-public class RentalResponse {
+public class UserEnterResponse {
 
     @Schema(description = "대여 ID", example = "123")
     private Long rentalId;
@@ -21,8 +21,8 @@ public class RentalResponse {
     @Schema(description = "입장 시각", example = "2025-09-20T14:00:00")
     private LocalDateTime startTime;
 
-    public static RentalResponse from(Rental rental) {
-        return RentalResponse.builder()
+    public static UserEnterResponse from(Rental rental) {
+        return UserEnterResponse.builder()
                 .rentalId(rental.getId())
                 .placeName(rental.getPlace().getName())
                 .startTime(rental.getStartTime())
