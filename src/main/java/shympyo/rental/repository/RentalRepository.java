@@ -66,7 +66,7 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
                                             Pageable pageable);
 
     @Query("""
-        select new shympyo.rental.dto.CurrentRentalResponse(
+        select new shympyo.rental.dto.PlaceCurrentRentalResponse(
             r.id, u.id, u.nickname, u.bio, u.imageUrl, r.startTime
         )
         from Rental r
@@ -81,7 +81,7 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
 
 
     @Query("""
-        select new shympyo.rental.dto.RentalHistoryResponse(
+        select new shympyo.rental.dto.PlaceRentalHistoryResponse(
             r.id,
             u.id,
             u.name,
