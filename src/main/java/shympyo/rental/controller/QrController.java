@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Value;
 import shympyo.rental.domain.Place;
 import shympyo.rental.repository.PlaceRepository;
 import shympyo.rental.service.QrGenerator;
@@ -23,7 +24,8 @@ public class QrController {
 
     private final PlaceRepository placeRepository;
 
-    private static final String PUBLIC_BASE_URL = "https://app.example.com"; // 실제 도메인으로 변경
+    @Value("${PUBLIC_BASE_URL:https://app.example.com}")
+    private String publicBaseUrl;; // 실제 도메인으로 변경
 
     @Operation(
             summary = "장소 고정 QR 이미지(PNG)",
@@ -40,7 +42,7 @@ public class QrController {
     public @ResponseBody byte[] qr(@PathVariable Long placeId) {
         Place p = placeRepository.findById(placeId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 장소"));
-        String url = QrGenerator.enterUrl(PUBLIC_BASE_URL, p.getCode());
+        String url = QrGenerator.enterUrl(publicBaseUrl, p.getCode());
         return QrGenerator.toPng(url, 512);
     }
 
