@@ -58,6 +58,9 @@ public class Place {
             foreignKey = @ForeignKey(name = "fk_place_owner"))
     private User owner;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private PlaceStatus status = PlaceStatus.ACTIVE;
 
     public void updatePatch(PlaceUpdateRequest request) {
         if (request.getName() != null) this.name = request.getName();
@@ -68,6 +71,5 @@ public class Place {
         if (request.getOpenTime() != null) this.openTime = request.getOpenTime();
         if (request.getCloseTime() != null) this.closeTime = request.getCloseTime();
         if (request.getWeeklyHoliday() != null) this.weeklyHoliday = request.getWeeklyHoliday();
-
     }
 }
