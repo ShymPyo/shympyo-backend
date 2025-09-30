@@ -75,7 +75,7 @@ public class RentalService {
 
 
     @Transactional(readOnly = true)
-    public List<CurrentRentalResponse> getCurrentRental(Long userId){
+    public List<PlaceCurrentRentalResponse> getCurrentRental(Long userId){
 
         User provider = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
@@ -92,7 +92,7 @@ public class RentalService {
     }
 
     @Transactional(readOnly = true)
-    public List<RentalHistoryResponse> getTotalRental(Long userId){
+    public List<PlaceRentalHistoryResponse> getTotalRental(Long userId){
 
         User provider = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));

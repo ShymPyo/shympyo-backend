@@ -89,7 +89,7 @@ public class RentalController {
             description = "내가 소유한 장소에서 현재 이용(대여) 중인 사용자 목록을 조회한다.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "조회 성공",
-                            content = @Content(schema = @Schema(implementation = CurrentRentalResponse.class))),
+                            content = @Content(schema = @Schema(implementation = PlaceCurrentRentalResponse.class))),
                     @ApiResponse(responseCode = "401", description = "인증 실패"),
                     @ApiResponse(responseCode = "403", description = "권한 없음")
             }
@@ -98,7 +98,7 @@ public class RentalController {
     public ResponseEntity<?> getRental(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails user
     ) {
-        List<CurrentRentalResponse> rental = rentalService.getCurrentRental(user.getId());
+        List<PlaceCurrentRentalResponse> rental = rentalService.getCurrentRental(user.getId());
         return ResponseUtil.success(rental);
     }
 
@@ -107,7 +107,7 @@ public class RentalController {
             description = "내가 소유한 장소의 전체 이용(대여) 내역을 조회한다.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "조회 성공",
-                            content = @Content(schema = @Schema(implementation = RentalHistoryResponse.class))),
+                            content = @Content(schema = @Schema(implementation = PlaceRentalHistoryResponse.class))),
                     @ApiResponse(responseCode = "401", description = "인증 실패"),
                     @ApiResponse(responseCode = "403", description = "권한 없음")
             }
@@ -116,7 +116,7 @@ public class RentalController {
     public ResponseEntity<?> getTotalRental(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails user
     ) {
-        List<RentalHistoryResponse> rental = rentalService.getTotalRental(user.getId());
+        List<PlaceRentalHistoryResponse> rental = rentalService.getTotalRental(user.getId());
         return ResponseUtil.success(rental);
     }
 

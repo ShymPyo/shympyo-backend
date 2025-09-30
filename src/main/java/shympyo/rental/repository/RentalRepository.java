@@ -8,8 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import shympyo.rental.dto.CurrentRentalResponse;
-import shympyo.rental.dto.RentalHistoryResponse;
+import shympyo.rental.dto.PlaceCurrentRentalResponse;
+import shympyo.rental.dto.PlaceRentalHistoryResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -67,7 +67,7 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
 
     @Query("""
         select new shympyo.rental.dto.CurrentRentalResponse(
-            r.id, u.id, u.name, u.imageUrl, r.startTime
+            r.id, u.id, u.nickname, u.bio, u.imageUrl, r.startTime
         )
         from Rental r
         join r.user u
@@ -77,7 +77,7 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
           and (r.endTime is null or r.endTime >= CURRENT_TIMESTAMP)
         order by r.startTime desc
     """)
-    List<CurrentRentalResponse> findCurrentRentalsWithUserByPlace(@Param("placeId") Long placeId);
+    List<PlaceCurrentRentalResponse> findCurrentRentalsWithUserByPlace(@Param("placeId") Long placeId);
 
 
     @Query("""
@@ -95,5 +95,5 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
         where p.id = :placeId
         order by r.startTime desc
     """)
-    List<RentalHistoryResponse> findAllHistoryByPlace(@Param("placeId") Long placeId);
+    List<PlaceRentalHistoryResponse> findAllHistoryByPlace(@Param("placeId") Long placeId);
 }
