@@ -28,6 +28,9 @@ public class Place {
     @Column(name = "max_capacity", nullable = false)
     private Integer maxCapacity;
 
+    @Column(name = "max_usage_minutes", nullable = false)
+    private Integer maxUsageMinutes;
+
     @Column(nullable = false)
     private Double latitude;
 
@@ -47,7 +50,7 @@ public class Place {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private PlaceStatus status = PlaceStatus.INACTIVE;
+    private PlaceStatus status;
 
     public void updatePatch(PlaceUpdateRequest request) {
         if (request.getName() != null) this.name = request.getName();

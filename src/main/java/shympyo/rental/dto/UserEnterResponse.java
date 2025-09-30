@@ -24,6 +24,9 @@ public class UserEnterResponse {
     @Schema(description = "입장 시각", example = "2025-09-20T14:00:00")
     private LocalDateTime startTime;
 
+    @Schema(description = "최대 이용 시간(분)", example = "30")
+    private Integer maxTime;
+
     @Schema(description = "대여 상태", example = "using")
     private String status;
 
@@ -34,6 +37,7 @@ public class UserEnterResponse {
                 .placeName(rental.getPlace().getName())
                 .startTime(rental.getStartTime())
                 .status(rental.getStatus())
+                .maxTime(rental.getPlace().getMaxUsageMinutes())
                 .build();
     }
 }

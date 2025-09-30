@@ -34,30 +34,25 @@ public class PlaceService {
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         if (owner.getRole() != UserRole.PROVIDER) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "제공자가 아닙니다.");
+            throw new IllegalArgumentException("제공자가 아닙니다.");
         }
-
-        if (!request.getOpenTime().isBefore(request.getCloseTime())) {
-            throw new IllegalArgumentException("오픈 시간은 마감 시간보다 전이어야 합니다.");
-        }
-
-        String name = safeTrim(request.getName());
-        String address = safeTrim(request.getAddress());
 
         for (int attempt = 1; attempt <= CODE_MAX_RETRY; attempt++) {
-            String code = generateUniqueCode(); // 난수 기반
+            String code = generateUniqueCode();
 
             try {
                 Place place = Place.builder()
-                        .name(name)
+                        .name(request.getName())
                         .content(request.getContent())
                         .imageUrl(request.getImageUrl())
                         .maxCapacity(request.getMaxCapacity())
+                        .maxUsageMinutes(request.getMaxUsageMinutes())
                         .latitude(request.getLatitude())
                         .longitude(request.getLongitude())
-                        .address(address)
+                        .address(request.getAddress())
                         .code(code)
                         .owner(owner)
+                        .status(PlaceStatus.INACTIVE)
                         .build();
 
                 Place saved = placeRepository.save(place);
