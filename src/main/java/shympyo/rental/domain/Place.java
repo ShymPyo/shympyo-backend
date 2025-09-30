@@ -5,9 +5,6 @@ import lombok.*;
 import shympyo.rental.dto.PlaceUpdateRequest;
 import shympyo.user.domain.User;
 
-import java.time.DayOfWeek;
-import java.time.LocalTime;
-
 @Entity
 @Getter
 @AllArgsConstructor
@@ -40,16 +37,6 @@ public class Place {
     @Column(length = 200)
     private String address;
 
-    @Column(name = "open_time", nullable = false)
-    private LocalTime openTime;
-
-    @Column(name = "close_time", nullable = false)
-    private LocalTime closeTime;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "weekly_holiday")
-    private DayOfWeek weeklyHoliday;
-
     @Column(nullable = false, length = 50, unique = true)
     private String code;
 
@@ -60,7 +47,7 @@ public class Place {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private PlaceStatus status = PlaceStatus.ACTIVE;
+    private PlaceStatus status = PlaceStatus.INACTIVE;
 
     public void updatePatch(PlaceUpdateRequest request) {
         if (request.getName() != null) this.name = request.getName();
@@ -68,9 +55,6 @@ public class Place {
         if (request.getImageUrl() != null) this.imageUrl = request.getImageUrl();
         if (request.getMaxCapacity() != null) this.maxCapacity = request.getMaxCapacity();
         if (request.getAddress() != null) this.address = request.getAddress();
-        if (request.getOpenTime() != null) this.openTime = request.getOpenTime();
-        if (request.getCloseTime() != null) this.closeTime = request.getCloseTime();
-        if (request.getWeeklyHoliday() != null) this.weeklyHoliday = request.getWeeklyHoliday();
     }
 
     public void activate()   { this.status = PlaceStatus.ACTIVE; }

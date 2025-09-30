@@ -56,9 +56,6 @@ public class PlaceService {
                         .latitude(request.getLatitude())
                         .longitude(request.getLongitude())
                         .address(address)
-                        .openTime(request.getOpenTime())
-                        .closeTime(request.getCloseTime())
-                        .weeklyHoliday(request.getWeeklyHoliday())
                         .code(code)
                         .owner(owner)
                         .build();

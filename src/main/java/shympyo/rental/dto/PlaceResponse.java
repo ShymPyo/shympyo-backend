@@ -30,12 +30,6 @@ public class PlaceResponse {
 
     private String address;
 
-    private LocalTime openTime;
-
-    private LocalTime closeTime;
-
-    private DayOfWeek weeklyHoliday;
-
     private PlaceStatus status;
 
 
@@ -49,9 +43,6 @@ public class PlaceResponse {
                 .latitude(place.getLatitude())
                 .longitude(place.getLongitude())
                 .address(place.getAddress())
-                .openTime(place.getOpenTime())
-                .closeTime(place.getCloseTime())
-                .weeklyHoliday(place.getWeeklyHoliday())
                 .status(place.getStatus())
                 .build();
     }
