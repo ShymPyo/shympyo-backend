@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import shympyo.map.domain.Map;
+import shympyo.map.domain.PlaceType;
 
 import java.util.List;
 
@@ -32,9 +33,9 @@ public interface MapRepository extends JpaRepository<Map, Long> {
           AND m.longitude BETWEEN :minLon AND :maxLon
           AND m.type IN :types
     """)
-    List<shympyo.map.domain.Map> findInBoundingBox(
+    List<Map> findInBoundingBox(
             double minLat, double maxLat,
             double minLon, double maxLon,
-            List<shympyo.map.domain.PlaceType> types
+            List<PlaceType> types
     );
 }
