@@ -1,8 +1,9 @@
 package shympyo.rental.service;
 
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import shympyo.global.response.CursorPageResponse;
 import shympyo.rental.domain.Place;
 import shympyo.rental.domain.Rental;
 import shympyo.rental.dto.*;
@@ -17,7 +18,6 @@ import shympyo.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +29,7 @@ public class RentalService {
 
 
     @Transactional
-    public RentalResponse startRental(Long userId, String placeCode) {
+    public UserEnterResponse startRental(Long userId, String placeCode) {
 
         Place place = placeRepository.findByCodeForUpdate(placeCode)
                 .orElseThrow(() -> new IllegalArgumentException("일치하는 장소가 없습니다."));
@@ -45,12 +45,12 @@ public class RentalService {
         Rental rental = Rental.start(place, user, LocalDateTime.now());
         rentalRepository.save(rental);
 
-        return RentalResponse.from(rental);
+        return UserEnterResponse.from(rental);
     }
 
 
     @Transactional
-    public ExitResponse endRental(Long userId) {
+    public UserExitResponse endRental(Long userId) {
 
         var actives = rentalRepository.findByUserIdAndStatus(userId, "using");
 
@@ -65,17 +65,17 @@ public class RentalService {
         Rental rental = rentalRepository.findByIdForUpdate(rentalId)
                 .orElseThrow(() -> new IllegalArgumentException("대여 정보를 찾을 수 없습니다."));
 
-        if (!"using".equals(rental.getStatus())) return ExitResponse.from(rental);
+        if (!"using".equals(rental.getStatus())) return UserExitResponse.from(rental);
 
         rental.end(LocalDateTime.now());
 
-        return ExitResponse.from(rental);
+        return UserExitResponse.from(rental);
     }
 
 
 
     @Transactional(readOnly = true)
-    public List<CurrentRentalResponse> getRental(Long userId){
+    public List<CurrentRentalResponse> getCurrentRental(Long userId){
 
         User provider = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
@@ -108,6 +108,39 @@ public class RentalService {
 
     }
 
+    @Transactional(readOnly = true)
+    public CursorPageResponse<UserRentalHistoryResponse> getUserRental(
+            Long userId, String status, LocalDateTime cursorEndTime, Long cursorId, int size) {
+
+        int pageSize = Math.min(Math.max(size, 1), 100);
+        Pageable pageable = PageRequest.of(0, pageSize);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        if (user.getRole() != UserRole.USER) {
+            throw new IllegalArgumentException("사용자가 아닙니다.");
+        }
+
+        Slice<Rental> rentals = (cursorEndTime == null)
+                ? rentalRepository.findEndedByUser(userId, status, pageable)
+                : rentalRepository.findEndedByUserWithCursor(userId, status, cursorEndTime,
+                cursorId == null ? Long.MAX_VALUE : cursorId,
+                pageable);
+
+
+        List<UserRentalHistoryResponse> content = rentals.getContent().stream()
+                .map(r -> UserRentalHistoryResponse.builder()
+                        .rentalId(r.getId())
+                        .placeId(r.getPlace().getId())
+                        .placeName(r.getPlace().getName())
+                        .startTime(r.getStartTime())
+                        .endTime(r.getEndTime())
+                        .build())
+                .toList();
+
+        return new CursorPageResponse<>(content, rentals.hasNext());
+    }
 
     
     
