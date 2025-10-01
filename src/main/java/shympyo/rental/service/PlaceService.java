@@ -2,10 +2,8 @@ package shympyo.rental.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 import shympyo.rental.domain.Place;
 import shympyo.rental.domain.PlaceStatus;
 import shympyo.rental.dto.PlaceCreateRequest;
@@ -123,10 +121,6 @@ public class PlaceService {
             // 예: PL-A12F9C3D
         } while (placeRepository.existsByCode(code));
         return code;
-    }
-
-    private String safeTrim(String s) {
-        return (s == null) ? null : s.trim();
     }
 
 

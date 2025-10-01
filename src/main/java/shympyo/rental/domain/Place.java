@@ -57,6 +57,7 @@ public class Place {
         if (request.getContent() != null) this.content = request.getContent();
         if (request.getImageUrl() != null) this.imageUrl = request.getImageUrl();
         if (request.getMaxCapacity() != null) this.maxCapacity = request.getMaxCapacity();
+        if (request.getMaxUsageMinutes() != null) this.maxUsageMinutes = request.getMaxUsageMinutes();
         if (request.getAddress() != null) this.address = request.getAddress();
     }
 

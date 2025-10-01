@@ -19,18 +19,13 @@ public class PlaceUpdateRequest {
     @Schema(description = "최대 수용 인원", example = "12")
     private Integer maxCapacity;
 
+    @Schema(description = "최대 이용 가능 시간", example = "12")
+    private Integer maxUsageMinutes;
+
     @Schema(description = "대여 공간 사진(일단 하나만)", example = "s3주소/image/png")
     private String imageUrl;
 
     @Schema(description = "주소", example = "서울시 강남구 역삼동 123-45")
     private String address;
 
-    @Schema(description = "오픈 시각", example = "09:00:00")
-    private LocalTime openTime;
-
-    @Schema(description = "마감 시각", example = "22:00:00")
-    private LocalTime closeTime;
-
-    @Schema(description = "주간 휴무일", example = "SUNDAY")
-    private DayOfWeek weeklyHoliday;
 }

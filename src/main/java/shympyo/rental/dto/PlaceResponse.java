@@ -24,6 +24,8 @@ public class PlaceResponse {
 
     private Integer maxCapacity;
 
+    private Integer maxUsageMinutes;
+
     private Double latitude;
 
     private Double longitude;
@@ -40,6 +42,7 @@ public class PlaceResponse {
                 .content(place.getContent())
                 .imageUrl(place.getImageUrl())
                 .maxCapacity(place.getMaxCapacity())
+                .maxUsageMinutes(place.getMaxUsageMinutes())
                 .latitude(place.getLatitude())
                 .longitude(place.getLongitude())
                 .address(place.getAddress())
