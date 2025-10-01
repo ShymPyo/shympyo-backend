@@ -80,9 +80,23 @@ public class RentalController {
     public ResponseEntity<?> exit(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails user
     ) {
-        UserExitResponse rental = rentalService.endRental(user.getId());
+        UserExitResponse rental = rentalService.endRentalByUserId(user.getId());
         return ResponseUtil.success(rental);
     }
+
+    @Operation(
+            summary = "퇴장 처리(rentalId)",
+            description = "rentalId를 넣어 퇴장시킨다."
+    )
+    @PostMapping("/{rentalId}/cancel")
+    public ResponseEntity<CommonResponse<UserExitResponse>> exit(
+            @PathVariable Long rentalId,
+            @AuthenticationPrincipal CustomUserDetails user
+    ){
+        UserExitResponse rental = rentalService.cancelRental( user.getId(), rentalId);
+        return ResponseUtil.success(rental);
+    }
+
 
     @Operation(
             summary = "현재 이용자 조회",

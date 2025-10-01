@@ -37,6 +37,11 @@ public class RentalService {
         User user = userRepository.getReferenceById(userId);
 
         long usingCount = rentalRepository.countByPlaceIdAndStatus(place.getId(), "using");
+
+        if (rentalRepository.existsByUserIdAndStatus(userId, "using")) {
+            throw new IllegalStateException("이미 진행 중인 대여가 있습니다.");
+        }
+
         if (usingCount >= place.getMaxCapacity()) {
             throw new IllegalStateException("이 장소는 이미 최대 수용 인원("
                     + place.getMaxCapacity() + "명)에 도달했습니다.");
@@ -50,7 +55,7 @@ public class RentalService {
 
 
     @Transactional
-    public UserExitResponse endRental(Long userId) {
+    public UserExitResponse endRentalByUserId(Long userId) {
 
         var actives = rentalRepository.findByUserIdAndStatus(userId, "using");
 
@@ -63,7 +68,7 @@ public class RentalService {
 
         Long rentalId = actives.get(0).getId();
         Rental rental = rentalRepository.findByIdForUpdate(rentalId)
-                .orElseThrow(() -> new IllegalArgumentException("대여 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("입장 정보를 찾을 수 없습니다."));
 
         if (!"using".equals(rental.getStatus())) return UserExitResponse.from(rental);
 
@@ -72,6 +77,35 @@ public class RentalService {
         return UserExitResponse.from(rental);
     }
 
+    @Transactional
+    public UserExitResponse cancelRental(Long providerId, Long rentalId) {
+
+        User provider = userRepository.findById(providerId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        if (provider.getRole() != UserRole.PROVIDER) {
+            throw new IllegalArgumentException("제공자가 아닙니다.");
+        }
+
+        Rental rental = rentalRepository.findByIdForUpdate(rentalId)
+                .orElseThrow(()-> new IllegalArgumentException("입장 정보를 찾을 수 없습니다."));
+
+        if (!providerId.equals(rental.getPlace().getOwner().getId())){
+            throw new IllegalStateException("해당 장소 제공자만 퇴장시킬 수 있습니다.");
+        }
+
+        if (rental.isCanceled()) {
+            return UserExitResponse.from(rental);
+        }
+
+        if (rental.isEnded()) {
+            throw new IllegalStateException("이미 종료된 대여는 취소할 수 없습니다.");
+        }
+
+        rental.cancel(LocalDateTime.now());
+
+        return UserExitResponse.from(rental);
+    }
 
 
     @Transactional(readOnly = true)
