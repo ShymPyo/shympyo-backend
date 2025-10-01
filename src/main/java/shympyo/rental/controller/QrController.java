@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Value;
 import shympyo.rental.domain.Place;
 import shympyo.rental.repository.PlaceRepository;
-import shympyo.rental.service.QrGenerator;
+import shympyo.rental.service.QrService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -42,8 +42,8 @@ public class QrController {
     public @ResponseBody byte[] qr(@PathVariable Long placeId) {
         Place p = placeRepository.findById(placeId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 장소"));
-        String url = QrGenerator.enterUrl(publicBaseUrl, p.getCode());
-        return QrGenerator.toPng(url, 512);
+        String url = QrService.enterUrl(publicBaseUrl, p.getCode());
+        return QrService.toPng(url, 512);
     }
 
 

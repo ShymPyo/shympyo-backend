@@ -26,6 +26,7 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
         FROM Place p
         WHERE p.latitude  BETWEEN :minLat AND :maxLat
           AND p.longitude BETWEEN :minLon AND :maxLon
+          AND p.status = 'ACTIVE'
     """)
     List<Place> findInBoundingBox(
             @Param("minLat") double minLat,

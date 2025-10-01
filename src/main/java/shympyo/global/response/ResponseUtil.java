@@ -16,9 +16,9 @@ public class ResponseUtil {
 
     }
 
-    public static <T> ResponseEntity<CommonResponse<T>> success(String message){
+    public static <T> ResponseEntity<CommonResponse> success(String message){
 
-        return ResponseEntity.ok(new CommonResponse<>(true, 200, message));
+        return ResponseEntity.ok(new CommonResponse(true, 200, message));
 
     }
 

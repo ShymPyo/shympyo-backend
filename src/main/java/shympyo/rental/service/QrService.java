@@ -11,7 +11,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-public class QrGenerator {
+public class QrService {
 
     public static byte[] toPng(String content, int size) {
         try {

@@ -59,4 +59,13 @@ public class Rental {
         this.status = "ended";
     }
 
+    public void cancel(LocalDateTime endAt) {
+        if (!"using".equals(this.status)) return;
+        this.endTime = endAt;
+        this.status = "canceled";
+    }
+
+    public boolean isCanceled() { return this.status.equals("canceled") ; }
+    public boolean isEnded()    { return this.status.equals("ended"); }
+
 }

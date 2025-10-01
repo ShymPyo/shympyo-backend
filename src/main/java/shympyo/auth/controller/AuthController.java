@@ -45,7 +45,7 @@ public class AuthController {
             description = "현재 로그인한 사용자의 RefreshToken을 무효화한다."
     )
     @PostMapping("/logout")
-    public ResponseEntity<CommonResponse<Void>> logout(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<CommonResponse> logout(@AuthenticationPrincipal CustomUserDetails userDetails) {
 
         userService.logout(userDetails.getId());
 

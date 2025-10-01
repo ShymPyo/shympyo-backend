@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 @Schema(description = "현재 이용 중 대여 응답 DTO")
-public class CurrentRentalResponse {
+public class PlaceCurrentRentalResponse {
 
     @Schema(description = "대여 ID", example = "123")
     private Long rentalId;
@@ -17,8 +17,11 @@ public class CurrentRentalResponse {
     @Schema(description = "사용자 ID", example = "501")
     private Long userId;
 
-    @Schema(description = "사용자 이름", example = "홍길동")
-    private String userName;
+    @Schema(description = "사용자 닉네임", example = "진네커")
+    private String nickname;
+
+    @Schema(description = "자기소개", example = "안녕하세요!")
+    private String bio;
 
     @Schema(description = "프로필 이미지", example = "default_image")
     private String imageUrl;
