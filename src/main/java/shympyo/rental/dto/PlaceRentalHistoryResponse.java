@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 @Schema(description = "대여 이력 응답 DTO")
-public class RentalHistoryResponse {
+public class PlaceRentalHistoryResponse {
 
     @Schema(description = "대여 ID", example = "101")
     private Long rentalId;

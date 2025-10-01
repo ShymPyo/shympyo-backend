@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import shympyo.auth.user.CustomUserDetails;
 import shympyo.global.response.CommonResponse;
 import shympyo.global.response.ResponseUtil;
+import shympyo.rental.domain.PlaceStatus;
 import shympyo.rental.dto.*;
 import shympyo.rental.service.PlaceService;
 
@@ -36,7 +37,7 @@ public class PlaceController {
 
     @PatchMapping
     @Operation(summary = "쉼터 수정", description = "쉼터 제공자 쉼터 정보를 수정한다.")
-    public ResponseEntity<CommonResponse<PlaceResponse>> updatePlace(
+    public ResponseEntity<CommonResponse> updatePlace(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestBody @Valid PlaceUpdateRequest request
     ){
@@ -56,5 +57,15 @@ public class PlaceController {
         return ResponseUtil.success("성공적으로 쉼터를 조회했습니다.", place);
     }
 
+    @PatchMapping("/status")
+    public ResponseEntity<CommonResponse> changeStatus(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam PlaceStatus status
+    ) {
+        Long userId = user.getId();
+        placeService.changeStatus(userId, status);
+
+        return ResponseUtil.success("성공적으로 쉼터 상터를 변경했습니다.");
+    }
 
 }

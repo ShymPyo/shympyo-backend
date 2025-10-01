@@ -1,13 +1,15 @@
 package shympyo.rental.dto;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import shympyo.rental.domain.PlaceStatus;
 
-import java.time.DayOfWeek;
-import java.time.LocalTime;
+
 
 @Getter
 @NoArgsConstructor
@@ -33,6 +35,11 @@ public class PlaceCreateRequest {
     private Integer maxCapacity;
 
     @NotNull
+    @Schema(description = "최대 이용 시간(분)", example = "240", defaultValue = "30",
+            requiredMode = Schema.RequiredMode.REQUIRED)
+    private Integer maxUsageMinutes;
+
+    @NotNull
     @DecimalMin(value = "-90.0")
     @DecimalMax(value = "90.0")
     @Schema(description = "위도", example = "37.5665", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -48,16 +55,8 @@ public class PlaceCreateRequest {
     @Schema(description = "주소", example = "서울특별시 중구 세종대로 110")
     private String address;
 
-    @NotNull
-    @Schema(description = "오픈 시간", example = "09:00", requiredMode = Schema.RequiredMode.REQUIRED)
-    private LocalTime openTime;
-
-    @NotNull
-    @Schema(description = "마감 시간", example = "22:00", requiredMode = Schema.RequiredMode.REQUIRED)
-    private LocalTime closeTime;
-
-    @Schema(description = "주간 휴무일", example = "SUNDAY")
-    private DayOfWeek weeklyHoliday;
+    @Schema(description = "상태", example = "INACTIVE")
+    private PlaceStatus status;
 
 
 }

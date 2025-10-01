@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import shympyo.rental.domain.Place;
+import shympyo.rental.domain.PlaceStatus;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
@@ -23,17 +24,15 @@ public class PlaceResponse {
 
     private Integer maxCapacity;
 
+    private Integer maxUsageMinutes;
+
     private Double latitude;
 
     private Double longitude;
 
     private String address;
 
-    private LocalTime openTime;
-
-    private LocalTime closeTime;
-
-    private DayOfWeek weeklyHoliday;
+    private PlaceStatus status;
 
 
     public static PlaceResponse from(Place place) {
@@ -43,12 +42,11 @@ public class PlaceResponse {
                 .content(place.getContent())
                 .imageUrl(place.getImageUrl())
                 .maxCapacity(place.getMaxCapacity())
+                .maxUsageMinutes(place.getMaxUsageMinutes())
                 .latitude(place.getLatitude())
                 .longitude(place.getLongitude())
                 .address(place.getAddress())
-                .openTime(place.getOpenTime())
-                .closeTime(place.getCloseTime())
-                .weeklyHoliday(place.getWeeklyHoliday())
+                .status(place.getStatus())
                 .build();
     }
 }

@@ -4,5 +4,6 @@ public enum PlaceType {
     CULTURE,
     SHELTER,
     STATION,
-    CLIMATE_SHELTER
+    CLIMATE_SHELTER,
+    USER_SHELTER
 }
