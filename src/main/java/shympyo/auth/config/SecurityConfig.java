@@ -46,6 +46,10 @@ public class SecurityConfig {
                                 // 헬스 체크
                                 "/actuator/health",
                                 "/actuator/health/**",
+
+                                // 날씨 API 추가!
+                                "/api/weather/**",
+
                                 // 공개 API
                                 "/api/auth/**",
                                 "/api/users/signup",
