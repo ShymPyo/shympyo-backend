@@ -8,14 +8,16 @@ import org.springframework.data.repository.query.Param;
 import shympyo.letter.domain.Letter;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 
 public interface LetterRepository extends JpaRepository<Letter, Long> {
 
     boolean existsByRentalId(Long rentalId);
 
-    Optional<Letter> findByRentalId(Long rentalId);
+    @Query("select l.rental.id from Letter l where l.rental.id in :rentalIds")
+    Set<Long> findRentalIdsWithLetter(@Param("rentalIds") Collection<Long> rentalIds);
 
     @Query("""
       select l from Letter l
@@ -26,15 +28,6 @@ public interface LetterRepository extends JpaRepository<Letter, Long> {
       where l.id = :id
     """)
     Optional<Letter> findDetailById(@Param("id") Long id);
-
-    @Query("""
-        select l from Letter l
-        join l.rental r
-        join r.place p
-        where p.owner.id = :ownerId
-        order by l.createdAt desc
-    """)
-    List<Letter> findAllByOwner(@Param("ownerId") Long ownerId);
 
     @Query("""
         SELECT l
