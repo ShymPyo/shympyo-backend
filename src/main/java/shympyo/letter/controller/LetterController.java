@@ -44,6 +44,10 @@ public class LetterController {
         return ResponseUtil.success("받은 편지 목록", letterService.getReceivedLetters(owner.getId(), cursorCreatedAt, cursorId, size));
     }
 
+    @Operation(
+            summary = "편지 상세 조회",
+            description = "장소를 제공한 제공자가 가게로 받은 편지 내용을 조회한다."
+    )
     @GetMapping("/{letterId}")
     public ResponseEntity<CommonResponse<LetterDetailResponse>> getDetailReceivedLetters(
             @AuthenticationPrincipal CustomUserDetails owner,
