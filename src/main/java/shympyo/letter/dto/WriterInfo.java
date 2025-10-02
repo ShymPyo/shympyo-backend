@@ -14,13 +14,13 @@ public class WriterInfo {
     @Schema(description = "작성자 ID", example = "77")
     private Long id;
 
-    @Schema(description = "작성자 이름", example = "홍길동")
-    private String name;
+    @Schema(description = "작성자 닉네임", example = "홍길동")
+    private String nickname;
 
-    @Schema(description = "작성자 이메일", example = "hong@example.com")
-    private String email;
+    @Schema(description = "자기 소개", example = "안녕하세요 사용자입니다! ")
+    private String bio;
 
-    @Schema(description = "작성자 전화번호", example = "010-1234-5678")
-    private String phone;
+    @Schema(description = "작성자 프로필 이미지 주소", example = "https~")
+    private String imageUrl;
 
 }
