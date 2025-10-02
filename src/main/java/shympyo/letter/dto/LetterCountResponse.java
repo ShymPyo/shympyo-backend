@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 @Schema(description = "받은 편지 개수 응답 DTO")
-public class CountLetterResponse {
+public class LetterCountResponse {
 
     @Schema(description = "총 받은 편지 개수", example = "42")
     private Long total;

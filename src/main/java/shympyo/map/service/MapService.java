@@ -2,15 +2,20 @@ package shympyo.map.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import shympyo.map.domain.Map;
 import shympyo.map.domain.PlaceType;
-import shympyo.map.dto.NearbyListResponse;
-import shympyo.map.dto.NearbyMapResponse;
-import shympyo.map.dto.PlaceDetailResponse;
+import shympyo.map.dto.*;
 import shympyo.map.repository.MapRepository;
 import shympyo.rental.domain.Place;
+import shympyo.rental.domain.PlaceBusinessHour;
+import shympyo.rental.repository.PlaceBusinessHourRepository;
 import shympyo.rental.repository.PlaceRepository;
+import shympyo.rental.repository.RentalRepository;
 
+import java.time.DayOfWeek;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
@@ -23,6 +28,8 @@ public class MapService {
 
     private final MapRepository mapRepository;
     private final PlaceRepository placeRepository;
+    private final RentalRepository rentalRepository;
+    private final PlaceBusinessHourRepository placeBusinessHourRepository;
 
     private static final double EARTH_R = 6371000.0;
 
@@ -178,12 +185,12 @@ public class MapService {
 
     }
 
-    public PlaceDetailResponse getMap(Long mapId){
+    public MapDetailResponse getMap(Long mapId){
 
         Map map = mapRepository.findById(mapId)
                 .orElseThrow(()-> new IllegalArgumentException("해당 장소가 없습니다."));
 
-        return PlaceDetailResponse.builder()
+        return MapDetailResponse.builder()
                 .id(map.getId())
                 .name(map.getName())
                 .type(map.getType())
@@ -194,18 +201,56 @@ public class MapService {
 
     }
 
-    public PlaceDetailResponse getPlace(Long placeId){
+    @Transactional(readOnly = true)
+    public PlaceDetailResponse getPlace(Long placeId) {
 
         Place place = placeRepository.findById(placeId)
-                .orElseThrow(()-> new IllegalArgumentException("해당 장소가 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("해당 장소가 없습니다. id=" + placeId));
+
+        long using = rentalRepository.countByPlaceIdAndStatus(placeId, "using");
+
+        DayOfWeek todayDow = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).getDayOfWeek();
+
+        PlaceBusinessHour today = placeBusinessHourRepository
+                .findByPlaceIdAndDayOfWeek(placeId, todayDow)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "영업 시간이 없습니다. placeId=%d, day=%s".formatted(placeId, todayDow)));
+
+        if (!today.isClosed() && (today.getOpenTime() == null || today.getCloseTime() == null)) {
+            throw new IllegalStateException(
+                    "영업 정보가 불완전합니다. placeId=%d, day=%s".formatted(placeId, todayDow));
+        }
+
+        List<DayOfWeek> holidayDays = placeBusinessHourRepository.findByPlaceIdAndClosedTrue(placeId).stream()
+                .map(PlaceBusinessHour::getDayOfWeek)
+                .sorted(Comparator.comparingInt(d -> d.getValue()))
+                .toList();
+
+        PlaceTodayAndHolidayResponse todayAndHoliday =
+                PlaceTodayAndHolidayResponse.builder()
+                        .dayOfWeek(today.getDayOfWeek())
+                        .closed(today.isClosed())
+                        .openTime(today.isClosed() ? null : today.getOpenTime())
+                        .closeTime(today.isClosed() ? null : today.getCloseTime())
+                        .breakStart(today.isClosed() ? null : today.getBreakStart())
+                        .breakEnd(today.isClosed() ? null : today.getBreakEnd())
+                        .holidays(holidayDays)
+                        .build();
+
+        int current = (int) Math.min(using, place.getMaxCapacity() == null ? using : place.getMaxCapacity());
 
         return PlaceDetailResponse.builder()
                 .id(place.getId())
                 .name(place.getName())
-                .type(PlaceType.USER_SHELTER)
-                .longitude(place.getLongitude())
                 .address(place.getAddress())
+                .content(place.getContent())
+                .todayAndHoliday(todayAndHoliday)
+                .maxCapacity(place.getMaxCapacity())
+                .currentCapacity(current)
+                .imageUrl(place.getImageUrl())
+                .longitude(place.getLongitude())
                 .latitude(place.getLatitude())
+                .type(PlaceType.USER_SHELTER)
                 .build();
 
     }

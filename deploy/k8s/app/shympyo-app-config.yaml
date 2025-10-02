@@ -5,7 +5,7 @@ metadata:
 data:
   # server
   SERVER_PORT: "8080"
-
+  SPRING_PROFILES_ACTIVE: "prod"
   PUBLIC_BASE_URL: "https://shympyo.kro.kr"
 
 

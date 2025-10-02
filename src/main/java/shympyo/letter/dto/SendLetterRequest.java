@@ -15,6 +15,10 @@ public class SendLetterRequest {
     @NotNull(message = "장소 ID는 필수입니다.")
     private Long placeId;
 
+    @Schema(description = "편지를 보낼 장소의 대여 기록 ID", example = "5")
+    @NotNull(message = "편지를 보낼 대여 ID는 필수입니다.")
+    private Long rentalId;
+
     @Schema(description = "메세지 내용", example = "오늘 이용 정말 좋았습니다!")
     @NotBlank(message = "메세지 내용은 필수입니다.")
     private String content;

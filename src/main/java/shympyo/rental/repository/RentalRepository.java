@@ -19,6 +19,7 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
 
     long countByPlaceIdAndStatus(Long placeId, String status);
     boolean existsByUserIdAndStatus(Long userId, String status);
+    Optional<Rental> findByIdAndUserId(Long rentalId, Long userId);
 
     @Query("select r from Rental r where r.user.id = :userId and r.status = :status")
     List<Rental> findByUserIdAndStatus(@Param("userId") Long userId, @Param("status") String status);
