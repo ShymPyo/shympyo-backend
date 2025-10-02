@@ -1,35 +1,76 @@
 package shympyo.letter.repository;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import shympyo.letter.domain.Letter;
 
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.Set;
 
 public interface LetterRepository extends JpaRepository<Letter, Long> {
 
-    // 장소 주인 받은 모든 편지 수
-    @Query("""
-        select count(l)
-        from Letter l
-        where l.place.owner.id = :ownerId
-    """)
-    long countAllByOwner(@Param("ownerId") Long ownerId);
+    boolean existsByRentalId(Long rentalId);
 
-    // 장소 주인이 받은 편지 중 안 읽은 것 개수
-    @Query("""
-      select count(l) from Letter l
-      where l.place.owner.id = :ownerId and l.isRead = false
-    """)
-    long countUnreadByOwner(@Param("ownerId") Long ownerId);
+    @Query("select l.rental.id from Letter l where l.rental.id in :rentalIds")
+    Set<Long> findRentalIdsWithLetter(@Param("rentalIds") Collection<Long> rentalIds);
 
-    // 받은 편지 목록 (최신순)
     @Query("""
       select l from Letter l
-      where l.place.owner.id = :ownerId
-      order by l.createdAt desc
+      join fetch l.writer w
+      join fetch l.rental r
+      join fetch r.place p
+      join fetch p.owner o
+      where l.id = :id
     """)
-    List<Letter> findAllByOwner(@Param("ownerId") Long ownerId);
+    Optional<Letter> findDetailById(@Param("id") Long id);
+
+    @Query("""
+        SELECT l
+        FROM Letter l
+        JOIN l.rental r
+        JOIN r.place p
+        WHERE p.owner.id = :ownerId
+        ORDER BY l.createdAt DESC, l.id DESC
+    """)
+    Slice<Letter> findReceivedByOwner(@Param("ownerId") Long ownerId,
+                                      Pageable pageable);
+
+    @Query("""
+      SELECT l
+      FROM Letter l
+      JOIN l.rental r
+      JOIN r.place p
+      WHERE p.owner.id = :ownerId
+        AND (
+             l.createdAt < :cursorCreatedAt
+          OR (l.createdAt = :cursorCreatedAt AND l.id < :cursorId)
+        )
+      ORDER BY l.createdAt DESC, l.id DESC
+    """)
+    Slice<Letter> findReceivedByOwnerWithCursor(@Param("ownerId") Long ownerId,
+                                                @Param("cursorCreatedAt") LocalDateTime cursorCreatedAt,
+                                                @Param("cursorId") Long cursorId,
+                                                Pageable pageable);
+
+    @Query("""
+        select count(l) from Letter l
+        join l.rental r
+        join r.place p
+        where p.owner.id = :ownerId
+    """)
+    Long countAllByOwner(@Param("ownerId") Long ownerId);
+
+    @Query("""
+        select count(l) from Letter l
+        join l.rental r
+        join r.place p
+        where p.owner.id = :ownerId and l.isRead = false
+    """)
+    Long countUnreadByOwner(@Param("ownerId") Long ownerId);
 
 }

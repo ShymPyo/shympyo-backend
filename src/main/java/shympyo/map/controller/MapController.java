@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import shympyo.global.response.CommonResponse;
 import shympyo.global.response.ResponseUtil;
 import shympyo.map.domain.PlaceType;
+import shympyo.map.dto.MapDetailResponse;
 import shympyo.map.dto.NearbyListResponse;
 import shympyo.map.dto.NearbyMapResponse;
 import shympyo.map.dto.PlaceDetailResponse;
@@ -109,7 +110,7 @@ public class MapController {
             description = "공공 데이터(Map)에 등록된 쉼터의 상세 정보를 조회한다."
     )
     @GetMapping("/public/{id}")
-    public ResponseEntity<CommonResponse<PlaceDetailResponse>> getMap(
+    public ResponseEntity<CommonResponse<MapDetailResponse>> getMap(
             @Parameter(description = "공공 쉼터 ID", example = "123")
             @PathVariable Long id
     ) {

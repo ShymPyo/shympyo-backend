@@ -17,5 +17,4 @@ public interface PlaceBusinessHourRepository extends JpaRepository<PlaceBusiness
 
     Optional<PlaceBusinessHour> findByPlaceIdAndDayOfWeek(Long placeId, DayOfWeek day);
 
-
-}
+    List<PlaceBusinessHour> findByPlaceIdAndClosedTrue(Long placeId);}

@@ -27,4 +27,7 @@ public class UserRentalHistoryResponse {
 
     @Schema(description = "대여 종료 시간", example = "2025-09-01T12:00:00")
     private LocalDateTime endTime;
+
+    @Schema(description = "대여에 대한 편지 작성 여부", example = "true")
+    private Boolean isWritten;
 }

@@ -4,6 +4,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import shympyo.global.response.CursorPageResponse;
+import shympyo.letter.repository.LetterRepository;
 import shympyo.rental.domain.Place;
 import shympyo.rental.domain.Rental;
 import shympyo.rental.dto.*;
@@ -18,6 +19,7 @@ import shympyo.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +28,7 @@ public class RentalService {
     private final UserRepository userRepository;
     private final RentalRepository rentalRepository;
     private final PlaceRepository placeRepository;
-
+    private final LetterRepository letterRepository;
 
     @Transactional
     public UserEnterResponse startRental(Long userId, String placeCode) {
@@ -162,6 +164,13 @@ public class RentalService {
                 cursorId == null ? Long.MAX_VALUE : cursorId,
                 pageable);
 
+        List<Rental> rentalList = rentals.getContent();
+        List<Long> rentalIds = rentalList.stream().map(Rental::getId).toList();
+
+        Set<Long> rentalIdsWithLetter = rentalIds.isEmpty()
+                ? Set.of()
+                : letterRepository.findRentalIdsWithLetter(rentalIds);
+
 
         List<UserRentalHistoryResponse> content = rentals.getContent().stream()
                 .map(r -> UserRentalHistoryResponse.builder()
@@ -170,6 +179,7 @@ public class RentalService {
                         .placeName(r.getPlace().getName())
                         .startTime(r.getStartTime())
                         .endTime(r.getEndTime())
+                        .isWritten(rentalIdsWithLetter.contains(r.getId()))
                         .build())
                 .toList();
 

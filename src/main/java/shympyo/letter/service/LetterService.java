@@ -1,13 +1,20 @@
 package shympyo.letter.service;
 
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import shympyo.global.response.CursorPageResponse;
 import shympyo.letter.domain.Letter;
 import shympyo.letter.dto.*;
 import shympyo.letter.repository.LetterRepository;
 import shympyo.rental.domain.Place;
+import shympyo.rental.domain.Rental;
 import shympyo.rental.repository.PlaceRepository;
 import shympyo.rental.repository.RentalRepository;
 import shympyo.user.domain.User;
@@ -27,42 +34,61 @@ public class LetterService {
     private final RentalRepository rentalRepository;
 
     @Transactional
-    public SendLetterResponse send(Long writerId, SendLetterRequest request) {
+    public SendLetterResponse send(Long writerId, SendLetterRequest req) {
 
         User writer = userRepository.findById(writerId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
-        Place place = placeRepository.findById(request.getPlaceId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 장소입니다."));
+        Rental rental = rentalRepository.findByIdAndUserId(req.getRentalId(), writerId)
+                    .orElseThrow(() -> new AccessDeniedException("본인의 대여만 편지 작성이 가능합니다."));
 
-        boolean visited = rentalRepository.hasEndedRental(writerId, place.getId());
-        if (!visited) throw new AccessDeniedException("대여 이력이 없는 장소에는 편지를 보낼 수 없습니다.");
+        if (!rental.getPlace().getId().equals(req.getPlaceId())) {
+            throw new IllegalArgumentException("요청한 placeId와 rental의 place가 일치하지 않습니다.");
+        }
 
-        Letter saved = letterRepository.save(
-                Letter.builder()
-                        .writer(writer)
-                        .place(place)
-                        .content(request.getContent())
-                        .isRead(false)
-                        .build()
-        );
+        if (!rental.getStatus().equals("ended")) {
+            throw new AccessDeniedException("대여 종료 후에만 편지를 보낼 수 있습니다.");
+        }
 
-        // 여기서 바로 DTO로 변환하면 LAZY 프록시 직렬화 문제 없음
+        if (letterRepository.existsByRentalId(rental.getId())) {
+            throw new IllegalStateException("이미 해당 대여에 대한 편지가 존재합니다.");
+        }
+
+        Letter saved;
+        try {
+            saved = letterRepository.save(
+                    Letter.builder()
+                            .writer(writer)
+                            .rental(rental)
+                            .content(req.getContent())
+                            .isRead(false)
+                            .build()
+            );
+        } catch (DataIntegrityViolationException ex) {
+            throw new IllegalStateException("이미 해당 대여에 대한 편지가 존재합니다.");
+        }
+
+        Place p = rental.getPlace();
         return new SendLetterResponse(
                 saved.getId(),
-                saved.getPlace().getId(),
-                saved.getPlace().getName(),
-                saved.getWriter().getId(),
-                saved.getWriter().getName(),
+                p.getId(),
+                p.getName(),
+                writer.getId(),
+                writer.getName(),
                 saved.getContent(),
                 saved.isRead(),
                 saved.getReadAt(),
                 saved.getCreatedAt()
         );
+
     }
 
+    @Transactional(readOnly = true)
+    public CursorPageResponse<LetterHistoryResponse> getReceivedLetters(Long ownerId,
+                                                                        @Nullable LocalDateTime cursorCreatedAt,
+                                                                        @Nullable Long cursorId,
+                                                                        int size) {
 
-    public List<LetterResponse> getReceivedLetters(Long ownerId) {
         User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
@@ -70,61 +96,85 @@ public class LetterService {
             throw new AccessDeniedException("제공자 권한이 필요합니다.");
         }
 
-        return letterRepository.findAllByOwner(ownerId).stream()
+        Pageable pageable = PageRequest.of(0,size);
+
+        Slice<Letter> slice = (cursorCreatedAt == null || cursorId == null)
+                ? letterRepository.findReceivedByOwner(ownerId, pageable)
+                : letterRepository.findReceivedByOwnerWithCursor(ownerId, cursorCreatedAt, cursorId, pageable);
+
+        List<LetterHistoryResponse> history = slice.getContent().stream()
                 .map(l -> {
                     var w = l.getWriter();
-                    var writerInfo = new WriterInfo(
-                            w.getId(),
-                            w.getName(),
-                            w.getEmail(),
-                            maskPhone(w.getPhone()) // 필요 없으면 w.getPhone() 그대로
-                    );
-
-                    return new LetterResponse(
+                    return new LetterHistoryResponse(
                             l.getId(),
-                            l.getPlace().getId(),
-                            l.getPlace().getName(),
-                            writerInfo,
-                            l.getContent(),
-                            l.isRead(),
-                            l.getReadAt(),
-                            l.getCreatedAt()
+                            new WriterInfo(w.getId(), w.getNickname(), w.getBio(), w.getImageUrl()),
+                            l.getCreatedAt(),
+                            l.isRead()
                     );
                 })
                 .toList();
 
+        return new CursorPageResponse<>(history, slice.hasNext());
+
     }
 
-    private String maskPhone(String phone) {
-        if (phone == null) return null;
-        // 010-1234-5678 / 01012345678 모두 처리
-        return phone.replaceAll("(\\d{3})-?(\\d{3,4})-?(\\d{4})", "$1-****-$3");
+
+
+    @Transactional
+    public LetterDetailResponse getReceivedLetterDetail(Long ownerId, Long letterId) {
+
+        User owner = userRepository.findById(ownerId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+        if (owner.getRole() != UserRole.PROVIDER) {
+            throw new AccessDeniedException("제공자 권한이 필요합니다.");
+        }
+
+        Letter letter = letterRepository.findDetailById(letterId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 편지입니다."));
+
+        Long receiverId = letter.getRental().getPlace().getOwner().getId();
+        if (!receiverId.equals(ownerId)) {
+            throw new AccessDeniedException("수신자만 조회할 수 있습니다.");
+        }
+
+        if (!letter.isRead()) {
+            letter.markAsRead(LocalDateTime.now());
+        }
+
+        var w = letter.getWriter();
+        var writerInfo = new WriterInfo(
+                w.getId(),
+                w.getNickname(),
+                w.getBio(),
+                w.getImageUrl()
+        );
+
+        return new LetterDetailResponse(
+                letter.getId(),
+                letter.getContent(),
+                writerInfo,
+                letter.getCreatedAt()
+        );
     }
+
+
 
     @Transactional
     public void readLetter(Long ownerId, Long letterId) {
-        if (ownerId == null || letterId == null) {
-            throw new IllegalArgumentException("필수 파라미터가 누락되었습니다.");
-        }
 
-        // 1) 사용자 확인 (선택: 제공자 롤 검증)
         User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         if (owner.getRole() != UserRole.PROVIDER) throw new AccessDeniedException("제공자 권한이 필요합니다.");
 
-        // 2) 편지 로드
-        Letter letter = letterRepository.findById(letterId)
+        Letter letter = letterRepository.findDetailById(letterId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 편지입니다."));
 
-        // 3) 권한 확인: 이 편지의 수신자가 맞는지
-        Long receiverId = letter.getPlace().getOwner().getId();
+        Long receiverId = letter.getRental().getPlace().getOwner().getId();
         if (!receiverId.equals(ownerId)) {
             throw new AccessDeniedException("수신자만 읽음 처리할 수 있습니다.");
         }
 
-
-        // 5) 읽음 처리 (idempotent)
         if (!letter.isRead()) {
             letter.markAsRead(LocalDateTime.now());
         }
@@ -134,8 +184,7 @@ public class LetterService {
 
     }
 
-    // 읽은 편지 개수 확인하기
-    public CountLetterResponse countLetter(Long ownerId){
+    public LetterCountResponse countLetter(Long ownerId){
 
         User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
@@ -148,10 +197,15 @@ public class LetterService {
         Long unread = letterRepository.countUnreadByOwner(ownerId);
         Long read = all - unread;
 
-        CountLetterResponse response = new CountLetterResponse(all, unread, read);
+        LetterCountResponse response = new LetterCountResponse(all, unread, read);
 
         return response;
     }
 
+
+    private String maskPhone(String phone) {
+        if (phone == null) return null;
+        return phone.replaceAll("(\\d{3})-?(\\d{3,4})-?(\\d{4})", "$1-****-$3");
+    }
 
 }

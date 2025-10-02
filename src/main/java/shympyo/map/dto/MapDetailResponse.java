@@ -4,14 +4,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import shympyo.map.domain.PlaceType;
-import shympyo.rental.domain.PlaceBusinessHour;
 
-import java.util.List;
-
-@Getter
 @Builder
-@Schema(description = "장소 상세 정보 응답 DTO")
-public class PlaceDetailResponse {
+@Getter
+public class MapDetailResponse {
 
     @Schema(description = "장소 ID", example = "7")
     private Long id;
@@ -25,18 +21,6 @@ public class PlaceDetailResponse {
     @Schema(description = "설명/소개", example = "16-023 강서세무서(중) 버스정류소")
     private String content;
 
-    @Schema(description = "최대 수용 인원", example = "5")
-    private Integer maxCapacity;
-
-    @Schema(description = "현재 이용 인원", example = "3")
-    private Integer currentCapacity;
-
-    @Schema(description = "영업 시간")
-    private PlaceTodayAndHolidayResponse todayAndHoliday;
-
-    @Schema(description = "이미지 주소")
-    private String imageUrl;
-
     @Schema(description = "위도", example = "37.5665")
     private double latitude;
 
@@ -45,4 +29,5 @@ public class PlaceDetailResponse {
 
     @Schema(description = "장소 유형", example = "CAFE")
     private PlaceType type;
+
 }
