@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import shympyo.rental.domain.Rental;
+import shympyo.rental.domain.RentalStatus;
 
 import java.time.LocalDateTime;
 
@@ -28,7 +29,7 @@ public class UserEnterResponse {
     private Integer maxTime;
 
     @Schema(description = "대여 상태", example = "using")
-    private String status;
+    private RentalStatus status;
 
     public static UserEnterResponse from(Rental rental) {
         return UserEnterResponse.builder()
