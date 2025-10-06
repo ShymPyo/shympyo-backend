@@ -3,6 +3,7 @@ package shympyo.rental.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import shympyo.rental.domain.RentalStatus;
 
 import java.time.LocalDateTime;
 
@@ -27,7 +28,7 @@ public class PlaceRentalHistoryResponse {
     private LocalDateTime endTime;
 
     @Schema(description = "대여 상태", example = "ended")
-    private String status;
+    private RentalStatus status;
 
     @Schema(description = "이용 시간(분)", example = "150")
     public Long getDurationMinutes() {

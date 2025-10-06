@@ -32,16 +32,17 @@ public class Rental {
     @Column(name = "end_time")
     private LocalDateTime endTime;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 16)
-    private String status; // using | ended | canceled
+    private RentalStatus status; // using | ended | canceled
 
     @Builder
-    private Rental(Place place, User user, LocalDateTime startTime, LocalDateTime endTime, String status) {
+    private Rental(Place place, User user, LocalDateTime startTime, LocalDateTime endTime, RentalStatus status) {
         this.place = place;
         this.user = user;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.status = (status == null ? "using" : status);
+        this.status = (status == null ? RentalStatus.USING : status);
     }
 
     public static Rental start(Place place, User user, LocalDateTime now) {
@@ -49,23 +50,30 @@ public class Rental {
                 .place(place)
                 .user(user)
                 .startTime(now)
-                .status("using")
+                .status(RentalStatus.USING)
                 .build();
     }
 
     public void end(LocalDateTime endAt) {
-        if (!"using".equals(this.status)) return;
+        if (!RentalStatus.USING.equals(this.status)) return;
         this.endTime = endAt;
-        this.status = "ended";
+        this.status = RentalStatus.ENDED;
     }
 
     public void cancel(LocalDateTime endAt) {
-        if (!"using".equals(this.status)) return;
+        if (!RentalStatus.USING.equals(this.status)) return;
         this.endTime = endAt;
-        this.status = "canceled";
+        this.status = RentalStatus.CANCELED;
     }
 
-    public boolean isCanceled() { return this.status.equals("canceled") ; }
-    public boolean isEnded()    { return this.status.equals("ended"); }
+    public void kick(LocalDateTime endAt) {
+        if (!RentalStatus.USING.equals(this.status)) return;
+        this.endTime = endAt;
+        this.status = RentalStatus.KICKED;
+    }
+
+    public boolean isCanceled() { return this.status.equals(RentalStatus.CANCELED) ; }
+    public boolean isEnded()    { return this.status.equals(RentalStatus.ENDED); }
+    public boolean isKicked()    { return this.status.equals(RentalStatus.KICKED); }
 
 }

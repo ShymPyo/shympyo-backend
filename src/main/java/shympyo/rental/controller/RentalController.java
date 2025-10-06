@@ -18,6 +18,7 @@ import shympyo.auth.user.CustomUserDetails;
 import shympyo.global.response.CommonResponse;
 import shympyo.global.response.CursorPageResponse;
 import shympyo.global.response.ResponseUtil;
+import shympyo.rental.domain.RentalStatus;
 import shympyo.rental.dto.*;
 import shympyo.rental.service.RentalService;
 
@@ -88,12 +89,12 @@ public class RentalController {
             summary = "퇴장 처리(rentalId)",
             description = "rentalId를 넣어 퇴장시킨다."
     )
-    @PostMapping("/{rentalId}/cancel")
+    @PostMapping("/{rentalId}/kick")
     public ResponseEntity<CommonResponse<UserExitResponse>> exit(
             @PathVariable Long rentalId,
             @AuthenticationPrincipal CustomUserDetails user
     ){
-        UserExitResponse rental = rentalService.cancelRental( user.getId(), rentalId);
+        UserExitResponse rental = rentalService.kickRental( user.getId(), rentalId);
         return ResponseUtil.success(rental);
     }
 
@@ -145,7 +146,7 @@ public class RentalController {
     @GetMapping("/user/history")
     public ResponseEntity<CommonResponse<CursorPageResponse<UserRentalHistoryResponse>>> history(
             @AuthenticationPrincipal CustomUserDetails user,
-            @RequestParam(defaultValue = "ended") String status,
+            @RequestParam(defaultValue = "ended") RentalStatus status,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime cursorEndTime,
             @RequestParam(required = false) Long cursorId,
             @RequestParam(defaultValue = "10") int size

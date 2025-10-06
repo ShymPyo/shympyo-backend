@@ -9,6 +9,7 @@ import shympyo.global.response.CursorPageResponse;
 import shympyo.letter.repository.LetterRepository;
 import shympyo.rental.domain.Place;
 import shympyo.rental.domain.Rental;
+import shympyo.rental.domain.RentalStatus;
 import shympyo.rental.dto.*;
 import shympyo.rental.dto.sse.RentalEndedEvent;
 import shympyo.rental.dto.sse.RentalStartedEvent;
@@ -57,9 +58,9 @@ public class RentalService {
 
         if(!open) throw new IllegalStateException("현재 영업 중이 아닙니다.");
 
-        long usingCount = rentalRepository.countByPlaceIdAndStatus(place.getId(), "using");
+        long usingCount = rentalRepository.countByPlaceIdAndStatus(place.getId(), RentalStatus.USING);
 
-        if (rentalRepository.existsByUserIdAndStatus(userId, "using")) {
+        if (rentalRepository.existsByUserIdAndStatus(userId, RentalStatus.USING)) {
             throw new IllegalStateException("이미 진행 중인 대여가 있습니다.");
         }
 
@@ -80,7 +81,7 @@ public class RentalService {
     @Transactional
     public UserExitResponse endRentalByUserId(Long userId) {
 
-        var actives = rentalRepository.findByUserIdAndStatus(userId, "using");
+        var actives = rentalRepository.findByUserIdAndStatus(userId, RentalStatus.USING);
 
         if (actives.isEmpty()) {
             throw new IllegalStateException("진행 중인 대여가 없습니다.");
@@ -93,7 +94,7 @@ public class RentalService {
         Rental rental = rentalRepository.findByIdForUpdate(rentalId)
                 .orElseThrow(() -> new IllegalArgumentException("입장 정보를 찾을 수 없습니다."));
 
-        if (!"using".equals(rental.getStatus())) return UserExitResponse.from(rental);
+        if (!RentalStatus.USING.equals(rental.getStatus())) return UserExitResponse.from(rental);
 
         rental.end(LocalDateTime.now());
 
@@ -103,7 +104,7 @@ public class RentalService {
     }
 
     @Transactional
-    public UserExitResponse cancelRental(Long providerId, Long rentalId) {
+    public UserExitResponse kickRental(Long providerId, Long rentalId) {
 
         User provider = userRepository.findById(providerId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
@@ -124,10 +125,10 @@ public class RentalService {
         }
 
         if (rental.isEnded()) {
-            throw new IllegalStateException("이미 종료된 대여는 취소할 수 없습니다.");
+            throw new IllegalStateException("이미 종료된 대여는 퇴장시킬 수 없습니다.");
         }
 
-        rental.cancel(LocalDateTime.now());
+        rental.kick(LocalDateTime.now());
 
         return UserExitResponse.from(rental);
     }
@@ -135,6 +136,8 @@ public class RentalService {
 
     @Transactional(readOnly = true)
     public List<PlaceCurrentRentalResponse> getCurrentRental(Long userId){
+
+        var ongoing = java.util.List.of(RentalStatus.USING, RentalStatus.TIME_EXCEEDED);
 
         User provider = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
@@ -146,7 +149,7 @@ public class RentalService {
         Place place = placeRepository.findByOwnerId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("등록된 장소가 없습니다."));
 
-        return rentalRepository.findCurrentRentalsWithUserByPlace(place.getId());
+        return rentalRepository.findCurrentRentalsWithUserByPlace(place.getId(),ongoing);
 
     }
 
@@ -169,7 +172,7 @@ public class RentalService {
 
     @Transactional(readOnly = true)
     public CursorPageResponse<UserRentalHistoryResponse> getUserRental(
-            Long userId, String status, LocalDateTime cursorEndTime, Long cursorId, int size) {
+            Long userId, RentalStatus status, LocalDateTime cursorEndTime, Long cursorId, int size) {
 
         int pageSize = Math.min(Math.max(size, 1), 100);
         Pageable pageable = PageRequest.of(0, pageSize);
