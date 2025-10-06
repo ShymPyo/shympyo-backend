@@ -95,10 +95,4 @@ public class ReportService {
 
     }
 
-    public getReport(){
-
-    }
-
-
-
 }
