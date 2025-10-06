@@ -1,4 +1,4 @@
-package shympyo.weather.dto;
+package shympyo.global.util.weather.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;

@@ -1,4 +1,4 @@
-package shympyo.weather.controller;
+package shympyo.global.util.weather.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -8,8 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import shympyo.global.response.CommonResponse;
 import shympyo.global.response.ResponseUtil;
-import shympyo.weather.dto.WeatherResponse;
-import shympyo.weather.service.WeatherService;
+import shympyo.global.util.weather.dto.WeatherResponse;
+import shympyo.global.util.weather.service.WeatherService;
 
 @Tag(name = "Weather", description = "날씨 정보 API")
 @RestController

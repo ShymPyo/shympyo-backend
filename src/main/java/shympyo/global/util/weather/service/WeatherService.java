@@ -1,4 +1,4 @@
-package shympyo.weather.service;
+package shympyo.global.util.weather.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import shympyo.weather.dto.WeatherResponse;
+import shympyo.global.util.weather.dto.WeatherResponse;
 
 @Slf4j
 @Service
