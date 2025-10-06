@@ -2,6 +2,7 @@ package shympyo.rental.repository;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.Modifying;
 import shympyo.rental.domain.Rental;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -72,7 +73,7 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
 
     @Query("""
         select new shympyo.rental.dto.PlaceCurrentRentalResponse(
-            r.id, u.id, u.nickname, u.bio, u.imageUrl, r.startTime, r.status
+            r.id, u.id, u.nickname, u.bio, u.imageUrl, r.startTime, r.dueTime, r.status
         )
         from Rental r
         join r.user u
@@ -97,5 +98,38 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
         order by r.startTime desc, r.id desc
     """)
     List<PlaceRentalHistoryResponse> findAllHistoryByPlace(@Param("placeId") Long placeId);
+
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+        UPDATE Rental r
+           SET r.status  = shympyo.rental.domain.RentalStatus.TIME_EXCEEDED,
+               r.endTime = :now
+         WHERE r.status  = shympyo.rental.domain.RentalStatus.USING
+           AND r.dueTime <= :now
+    """)
+    int markTimeExceeded(@Param("now") LocalDateTime now);
+
+    // (대량일 때 배치 방법)
+    @Query("""
+        SELECT r.id
+          FROM Rental r
+         WHERE r.status  = shympyo.rental.domain.RentalStatus.USING
+           AND r.dueTime <= :now
+         ORDER BY r.id
+    """)
+    List<Long> findOverdueIds(@Param("now") LocalDateTime now, Pageable pageable);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+        UPDATE Rental r
+           SET r.status  = shympyo.rental.domain.RentalStatus.TIME_EXCEEDED,
+               r.endTime = :now
+         WHERE r.id in :ids
+    """)
+    int markTimeExceededByIds(@Param("ids") List<Long> ids,
+                              @Param("now") LocalDateTime now);
+
+
 }
 

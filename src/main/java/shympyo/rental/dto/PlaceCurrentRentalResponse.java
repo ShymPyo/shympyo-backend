@@ -30,6 +30,9 @@ public class PlaceCurrentRentalResponse {
     @Schema(description = "대여 시작 시각", example = "2025-09-20T14:00:00")
     private LocalDateTime startTime;
 
+    @Schema(description = "대여 제한 시각", example = "2025-09-20T20:00:00")
+    private LocalDateTime dueTime;
+
     @Schema(description = "대여 상태", example = "USING/TIME_EXCEED")
     private RentalStatus status;
 }
