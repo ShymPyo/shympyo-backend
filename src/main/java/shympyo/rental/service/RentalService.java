@@ -3,11 +3,15 @@ package shympyo.rental.service;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.context.ApplicationEventPublisher;
+
 import shympyo.global.response.CursorPageResponse;
 import shympyo.letter.repository.LetterRepository;
 import shympyo.rental.domain.Place;
 import shympyo.rental.domain.Rental;
 import shympyo.rental.dto.*;
+import shympyo.rental.dto.sse.RentalEndedEvent;
+import shympyo.rental.dto.sse.RentalStartedEvent;
 import shympyo.rental.repository.PlaceRepository;
 import shympyo.rental.repository.RentalRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +29,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class RentalService {
 
+    private final ApplicationEventPublisher publisher;
     private final UserRepository userRepository;
     private final RentalRepository rentalRepository;
     private final PlaceRepository placeRepository;
@@ -52,6 +57,8 @@ public class RentalService {
         Rental rental = Rental.start(place, user, LocalDateTime.now());
         rentalRepository.save(rental);
 
+        publisher.publishEvent(new RentalStartedEvent(rental.getId()));
+
         return UserEnterResponse.from(rental);
     }
 
@@ -75,6 +82,8 @@ public class RentalService {
         if (!"using".equals(rental.getStatus())) return UserExitResponse.from(rental);
 
         rental.end(LocalDateTime.now());
+
+        publisher.publishEvent(new RentalEndedEvent(rental.getId()));
 
         return UserExitResponse.from(rental);
     }
