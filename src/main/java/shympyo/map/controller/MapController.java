@@ -6,7 +6,9 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import shympyo.auth.user.CustomUserDetails;
 import shympyo.global.response.CommonResponse;
 import shympyo.global.response.ResponseUtil;
 import shympyo.map.domain.PlaceType;
@@ -41,6 +43,8 @@ public class MapController {
     )
     @GetMapping("/nearby")
     public ResponseEntity<CommonResponse<List<NearbyMapResponse>>> nearby(
+            @AuthenticationPrincipal CustomUserDetails user,
+
             @Parameter(description = "위도", example = "37.5665")
             @RequestParam double lat,
 
@@ -61,7 +65,7 @@ public class MapController {
             )
             @RequestParam(name = "types", required = false) List<PlaceType> types
     ) {
-        return ResponseUtil.success(mapService.findNearby(lat, lon, radius, limit, types));
+        return ResponseUtil.success(mapService.findNearby(user.getId(), lat, lon, radius, limit, types));
     }
 
 
@@ -81,6 +85,8 @@ public class MapController {
     )
     @GetMapping("/nearby-list")
     public ResponseEntity<CommonResponse<List<NearbyListResponse>>> nearbyList(
+            @AuthenticationPrincipal CustomUserDetails user,
+
             @Parameter(description = "위도", example = "37.5665")
             @RequestParam double lat,
 
@@ -101,7 +107,7 @@ public class MapController {
             )
             @RequestParam(name = "types", required = false) List<PlaceType> types
     ) {
-        return ResponseUtil.success(mapService.findNearbyList(lat, lon, radius, limit, types));
+        return ResponseUtil.success(mapService.findNearbyList(user.getId(), lat, lon, radius, limit, types));
     }
 
 

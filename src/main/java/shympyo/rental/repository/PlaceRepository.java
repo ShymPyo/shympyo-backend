@@ -13,12 +13,12 @@ import java.util.Optional;
 public interface PlaceRepository extends JpaRepository<Place, Long> {
 
     Optional<Place> findByCode(String code);
-
+    Optional<Place> findByOwnerId(Long ownerId);
+    boolean existsByIdAndOwnerId(Long placeId, Long ownerId);
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select p from Place p where p.code = :code")
     Optional<Place> findByCodeForUpdate(@Param("code") String code);
 
-    Optional<Place> findByOwnerId(Long ownerId);
 
 
     @Query("""
