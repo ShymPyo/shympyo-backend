@@ -39,6 +39,15 @@ public class SseEmitterHub {
         }
     }
 
+    public void sendAll(String event, Object data) {
+        byPlace.values().forEach(list -> {
+            for (SseEmitter e : list) {
+                try { e.send(SseEmitter.event().name(event).data(data)); }
+                catch (Exception ex) { e.complete(); list.remove(e); }
+            }
+        });
+    }
+
     private void remove(Long placeId, SseEmitter emitter) {
         var list = byPlace.get(placeId);
         if (list != null) list.remove(emitter);
