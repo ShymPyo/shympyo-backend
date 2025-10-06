@@ -12,6 +12,7 @@ import shympyo.rental.domain.Rental;
 import shympyo.rental.dto.*;
 import shympyo.rental.dto.sse.RentalEndedEvent;
 import shympyo.rental.dto.sse.RentalStartedEvent;
+import shympyo.rental.repository.PlaceBusinessHourRepository;
 import shympyo.rental.repository.PlaceRepository;
 import shympyo.rental.repository.RentalRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,8 @@ import shympyo.user.domain.UserRole;
 import shympyo.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -29,19 +32,30 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class RentalService {
 
+
     private final ApplicationEventPublisher publisher;
     private final UserRepository userRepository;
     private final RentalRepository rentalRepository;
     private final PlaceRepository placeRepository;
     private final LetterRepository letterRepository;
+    private final PlaceBusinessHourRepository placeBusinessHourRepository;
+
 
     @Transactional
     public UserEnterResponse startRental(Long userId, String placeCode) {
+
+        var now = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
 
         Place place = placeRepository.findByCodeForUpdate(placeCode)
                 .orElseThrow(() -> new IllegalArgumentException("일치하는 장소가 없습니다."));
 
         User user = userRepository.getReferenceById(userId);
+
+        boolean open = placeBusinessHourRepository.existsOpenNow(
+                place.getId(), now.getDayOfWeek(), now.toLocalTime()
+        );
+
+        if(!open) throw new IllegalStateException("현재 영업 중이 아닙니다.");
 
         long usingCount = rentalRepository.countByPlaceIdAndStatus(place.getId(), "using");
 
