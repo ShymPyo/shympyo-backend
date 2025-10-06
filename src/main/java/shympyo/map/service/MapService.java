@@ -12,8 +12,12 @@ import shympyo.rental.domain.PlaceBusinessHour;
 import shympyo.rental.repository.PlaceBusinessHourRepository;
 import shympyo.rental.repository.PlaceRepository;
 import shympyo.rental.repository.RentalRepository;
+import shympyo.report.domain.SanctionScope;
+import shympyo.report.domain.SanctionType;
+import shympyo.report.repository.SanctionRepository;
 
 import java.time.DayOfWeek;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
@@ -30,6 +34,7 @@ public class MapService {
     private final PlaceRepository placeRepository;
     private final RentalRepository rentalRepository;
     private final PlaceBusinessHourRepository placeBusinessHourRepository;
+    private final SanctionRepository sanctionRepository;
 
     private static final double EARTH_R = 6371000.0;
 
@@ -49,11 +54,11 @@ public class MapService {
         }
     }
 
-    public List<NearbyMapResponse> findNearby(double lat, double lon, int radiusMeters, int limit) {
-        return findNearby(lat, lon, radiusMeters, limit, DEFAULT_TYPES);
+    public List<NearbyMapResponse> findNearby(Long userId, double lat, double lon, int radiusMeters, int limit) {
+        return findNearby(userId, lat, lon, radiusMeters, limit, DEFAULT_TYPES);
     }
 
-    public List<NearbyMapResponse> findNearby(double lat, double lon, int radiusMeters, int limit, List<PlaceType> includeTypes){
+    public List<NearbyMapResponse> findNearby(Long userId, double lat, double lon, int radiusMeters, int limit, List<PlaceType> includeTypes){
 
         final int radius   = Math.max(1, Math.min(radiusMeters, 5_000)); // 1m ~ 5km
         final int maxLimit = Math.max(1, Math.min(limit, 200));
@@ -72,10 +77,32 @@ public class MapService {
                 : mapRepository.findInBoundingBox(box.minLat, box.maxLat, box.minLon, box.maxLon, types);
 
 
-        List<Place> places = includeProvided
-                ? placeRepository.findInBoundingBox(box.minLat, box.maxLat, box.minLon, box.maxLon)
-                : List.of();
+        List<Place> places = List.of();
+        if (includeProvided) {
+            boolean isBlockedCategory = sanctionRepository.existsActiveCategoryBlock(
+                    userId,
+                    SanctionType.BLOCK_CONTENT,
+                    SanctionScope.PLACE_CATEGORY,
+                    PlaceType.USER_SHELTER,
+                    LocalDateTime.now()
+            );
 
+            if (!isBlockedCategory) {
+                List<Place> allPlaces = placeRepository.findInBoundingBox(
+                        box.minLat, box.maxLat, box.minLon, box.maxLon
+                );
+
+                places = allPlaces.stream()
+                        .filter(p -> !sanctionRepository.existsActivePlaceBlock(
+                                userId,
+                                SanctionType.BLOCK_CONTENT,
+                                SanctionScope.PLACE_ONLY,
+                                p.getId(),
+                                LocalDateTime.now()
+                        ))
+                        .toList();
+            }
+        }
 
         record Cand(long id, double lat_, double lon_, PlaceType type, double dist) {}
 
@@ -110,12 +137,12 @@ public class MapService {
                 .toList();
     }
 
-    public List<NearbyListResponse> findNearbyList(double lat, double lon, int radiusMeters, int limit) {
-        return findNearbyList(lat, lon, radiusMeters, limit, DEFAULT_TYPES);
+    public List<NearbyListResponse> findNearbyList(Long userId, double lat, double lon, int radiusMeters, int limit) {
+        return findNearbyList(userId, lat, lon, radiusMeters, limit, DEFAULT_TYPES);
     }
 
 
-    public List<NearbyListResponse> findNearbyList(double lat, double lon, int radiusMeters, int limit, List<PlaceType> includeTypes) {
+    public List<NearbyListResponse> findNearbyList(Long userId, double lat, double lon, int radiusMeters, int limit, List<PlaceType> includeTypes) {
 
         final int radius   = Math.max(1, Math.min(radiusMeters, 5_000));
         final int maxLimit = Math.max(1, Math.min(limit, 200));
@@ -136,9 +163,33 @@ public class MapService {
 
         final boolean includeProvided = types.contains(PlaceType.USER_SHELTER);
 
-        final List<Place> places = includeProvided
-                ? placeRepository.findInBoundingBox(box.minLat, box.maxLat, box.minLon, box.maxLon)
-                : List.of();
+        List<Place> places = List.of();
+        if (includeProvided) {
+            boolean isBlockedCategory = sanctionRepository.existsActiveCategoryBlock(
+                    userId,
+                    SanctionType.BLOCK_CONTENT,
+                    SanctionScope.PLACE_CATEGORY,
+                    PlaceType.USER_SHELTER,
+                    LocalDateTime.now()
+            );
+
+            if (!isBlockedCategory) {
+                List<Place> allPlaces = placeRepository.findInBoundingBox(
+                        box.minLat, box.maxLat, box.minLon, box.maxLon
+                );
+
+                places = allPlaces.stream()
+                        .filter(p -> !sanctionRepository.existsActivePlaceBlock(
+                                userId,
+                                SanctionType.BLOCK_CONTENT,
+                                SanctionScope.PLACE_ONLY,
+                                p.getId(),
+                                LocalDateTime.now()
+                        ))
+                        .toList();
+            }
+        }
+
 
         record Cand(
                 long id,
