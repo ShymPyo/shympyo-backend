@@ -9,6 +9,7 @@ import shympyo.map.dto.*;
 import shympyo.map.repository.MapRepository;
 import shympyo.rental.domain.Place;
 import shympyo.rental.domain.PlaceBusinessHour;
+import shympyo.rental.domain.RentalStatus;
 import shympyo.rental.repository.PlaceBusinessHourRepository;
 import shympyo.rental.repository.PlaceRepository;
 import shympyo.rental.repository.RentalRepository;
@@ -258,7 +259,7 @@ public class MapService {
         Place place = placeRepository.findById(placeId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 장소가 없습니다. id=" + placeId));
 
-        long using = rentalRepository.countByPlaceIdAndStatus(placeId, "using");
+        long using = rentalRepository.countByPlaceIdAndStatus(placeId, RentalStatus.USING);
 
         DayOfWeek todayDow = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).getDayOfWeek();
 

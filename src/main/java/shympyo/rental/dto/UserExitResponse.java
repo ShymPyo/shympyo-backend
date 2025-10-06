@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import shympyo.rental.domain.Rental;
+import shympyo.rental.domain.RentalStatus;
 
 import java.time.LocalDateTime;
 
@@ -28,7 +29,7 @@ public class UserExitResponse {
     private LocalDateTime endTime;
 
     @Schema(description = "이용 상태", example = "using/ended/canceled")
-    private String status;
+    private RentalStatus status;
 
     public static UserExitResponse from(Rental rental) {
         return UserExitResponse.builder()
@@ -37,6 +38,7 @@ public class UserExitResponse {
                 .placeName(rental.getPlace().getName())
                 .startTime(rental.getStartTime())
                 .endTime(rental.getEndTime())
+                .status(rental.getStatus())
                 .build();
     }
 }
