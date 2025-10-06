@@ -47,7 +47,7 @@ public class RentalSseController {
     public SseEmitter subscribe(@AuthenticationPrincipal CustomUserDetails provider,
                                 @PathVariable Long placeId) {
 
-        if(!placeRepository.existsByIdAndOwnerId(provider.getId(), placeId)){
+        if(!placeRepository.existsByIdAndOwnerId(placeId, provider.getId())){
             throw new IllegalArgumentException("해당 장소가 존재하지 않습니다.");
         };
 
