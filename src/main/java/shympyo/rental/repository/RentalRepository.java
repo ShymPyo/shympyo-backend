@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RentalRepository extends JpaRepository<Rental, Long> {
-
+    boolean existsByIdAndPlaceOwnerId(Long rentalId, Long ownerId);
     long countByPlaceIdAndStatus(Long placeId, String status);
     boolean existsByUserIdAndStatus(Long userId, String status);
     Optional<Rental> findByIdAndUserId(Long rentalId, Long userId);
