@@ -24,9 +24,8 @@ import shympyo.report.service.BlockService;
 import java.util.List;
 
 @Tag(name = "Provider Block", description = "제공자의 사용자 차단/해제/조회 API")
-@SecurityRequirement(name = "bearerAuth")
 @RestController
-@RequestMapping("/api/blocks/providers/me")
+@RequestMapping("/api/blocks")
 @RequiredArgsConstructor
 public class BlockController {
 
