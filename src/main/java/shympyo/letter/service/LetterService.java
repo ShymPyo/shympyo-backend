@@ -15,7 +15,7 @@ import shympyo.letter.dto.*;
 import shympyo.letter.repository.LetterRepository;
 import shympyo.rental.domain.Place;
 import shympyo.rental.domain.Rental;
-import shympyo.rental.repository.PlaceRepository;
+import shympyo.rental.domain.RentalStatus;
 import shympyo.rental.repository.RentalRepository;
 import shympyo.user.domain.User;
 import shympyo.user.domain.UserRole;
@@ -30,7 +30,6 @@ public class LetterService {
 
     private final LetterRepository letterRepository;
     private final UserRepository userRepository;
-    private final PlaceRepository placeRepository;
     private final RentalRepository rentalRepository;
 
     @Transactional
@@ -46,7 +45,7 @@ public class LetterService {
             throw new IllegalArgumentException("요청한 placeId와 rental의 place가 일치하지 않습니다.");
         }
 
-        if (!rental.getStatus().equals("ended")) {
+        if (!rental.getStatus().equals(RentalStatus.ENDED)) {
             throw new AccessDeniedException("대여 종료 후에만 편지를 보낼 수 있습니다.");
         }
 
