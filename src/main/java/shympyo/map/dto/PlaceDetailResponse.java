@@ -25,6 +25,9 @@ public class PlaceDetailResponse {
     @Schema(description = "설명/소개", example = "16-023 강서세무서(중) 버스정류소")
     private String content;
 
+    @Schema(description = "최대 사용 시간", example = "5")
+    private Integer maxUsageMinutes;
+
     @Schema(description = "최대 수용 인원", example = "5")
     private Integer maxCapacity;
 
