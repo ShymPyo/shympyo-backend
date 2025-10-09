@@ -288,7 +288,6 @@ public class MapService {
                         .breakEnd(today.isClosed() ? null : today.getBreakEnd())
                         .holidays(holidayDays)
                         .build();
-
         int current = (int) Math.min(using, place.getMaxCapacity() == null ? using : place.getMaxCapacity());
 
         return PlaceDetailResponse.builder()
@@ -297,6 +296,7 @@ public class MapService {
                 .address(place.getAddress())
                 .content(place.getContent())
                 .todayAndHoliday(todayAndHoliday)
+                .maxUsageMinutes(place.getMaxUsageMinutes())
                 .maxCapacity(place.getMaxCapacity())
                 .currentCapacity(current)
                 .imageUrl(place.getImageUrl())
