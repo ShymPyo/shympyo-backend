@@ -20,6 +20,7 @@ import shympyo.global.response.CursorPageResponse;
 import shympyo.global.response.ResponseUtil;
 import shympyo.rental.domain.RentalStatus;
 import shympyo.rental.dto.*;
+import shympyo.rental.service.RentalEnterValidator;
 import shympyo.rental.service.RentalService;
 
 import java.time.LocalDateTime;
@@ -33,6 +34,7 @@ import java.util.List;
 public class RentalController {
 
     private final RentalService rentalService;
+    private final RentalEnterValidator rentalEnterValidator;
 
     @Operation(
             summary = "입장 처리",
@@ -62,6 +64,9 @@ public class RentalController {
             @org.springframework.web.bind.annotation.RequestBody UserEnterRequest request,
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails user
     ) {
+
+        rentalEnterValidator.precheck(user.getId(), request.getPlaceCode());
+
         UserEnterResponse response = rentalService.startRental(user.getId(), request.getPlaceCode());
         return ResponseUtil.success(response);
     }
@@ -93,8 +98,8 @@ public class RentalController {
     public ResponseEntity<CommonResponse<UserExitResponse>> exit(
             @PathVariable Long rentalId,
             @AuthenticationPrincipal CustomUserDetails user
-    ){
-        UserExitResponse rental = rentalService.kickRental( user.getId(), rentalId);
+    ) {
+        UserExitResponse rental = rentalService.kickRental(user.getId(), rentalId);
         return ResponseUtil.success(rental);
     }
 
@@ -138,9 +143,9 @@ public class RentalController {
     @Operation(
             summary = "사용자 대여 이력(커서 기반 페이지네이션)",
             description = """
-            최근 종료된 대여 이력을 커서 기반으로 조회한다.
-            다음 페이지를 요청할 때는 이전 응답의 마지막 아이템의 (endTime, rentalId)을 커서로 넘긴다.
-            """
+                    최근 종료된 대여 이력을 커서 기반으로 조회한다.
+                    다음 페이지를 요청할 때는 이전 응답의 마지막 아이템의 (endTime, rentalId)을 커서로 넘긴다.
+                    """
 
     )
     @GetMapping("/user/history")
