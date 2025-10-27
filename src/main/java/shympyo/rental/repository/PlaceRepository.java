@@ -14,6 +14,7 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
 
     Optional<Place> findByCode(String code);
 
+    @Query("select p from Place p where p.owner.id = :ownerId")
     Optional<Place> findByOwnerId(Long ownerId);
 
     boolean existsByIdAndOwnerId(Long placeId, Long ownerId);

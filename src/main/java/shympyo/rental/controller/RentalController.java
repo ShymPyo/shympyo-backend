@@ -136,7 +136,7 @@ public class RentalController {
     public ResponseEntity<?> getTotalRental(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails user
     ) {
-        List<PlaceRentalHistoryResponse> rental = rentalService.getTotalRental(user.getId());
+        List<PlaceRentalHistoryResponse> rental = rentalService.getTotalRental(user.getId(), user.getRole());
         return ResponseUtil.success(rental);
     }
 

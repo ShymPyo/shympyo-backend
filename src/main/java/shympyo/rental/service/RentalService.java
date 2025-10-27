@@ -152,19 +152,16 @@ public class RentalService {
     }
 
     @Transactional(readOnly = true)
-    public List<PlaceRentalHistoryResponse> getTotalRental(Long userId) {
+    public List<PlaceRentalHistoryResponse> getTotalRental(Long userId, UserRole userRole) {
 
-        User provider = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-
-        if (provider.getRole() != UserRole.PROVIDER) {
+        if (userRole != UserRole.PROVIDER) {
             throw new IllegalArgumentException("제공자가 아닙니다.");
         }
 
         Place place = placeRepository.findByOwnerId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("등록된 장소가 없습니다."));
 
-        return rentalRepository.findAllHistoryByPlace(place.getId());
+        return rentalQueryRepository.findAllHistoryByPlace(place.getId());
 
     }
 
