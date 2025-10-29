@@ -6,18 +6,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shympyo.rental.domain.Place;
 import shympyo.rental.domain.PlaceStatus;
-import shympyo.report.dto.ProviderBlockUserRequest;
 import shympyo.rental.dto.PlaceCreateRequest;
 import shympyo.rental.dto.PlaceResponse;
 import shympyo.rental.dto.PlaceUpdateRequest;
 import shympyo.rental.repository.PlaceRepository;
-import shympyo.report.domain.SanctionSource;
-import shympyo.report.service.SanctionService;
 import shympyo.user.domain.User;
 import shympyo.user.domain.UserRole;
 import shympyo.user.repository.UserRepository;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -28,7 +24,6 @@ public class PlaceService {
 
     private final UserRepository userRepository;
     private final PlaceRepository placeRepository;
-    private final SanctionService sanctionService;
 
     @Transactional
     public PlaceResponse createPlace(Long userId, PlaceCreateRequest request) {

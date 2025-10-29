@@ -1,4 +1,4 @@
-package shympyo.user.dto;
+package shympyo.storage.dto;
 
 public record PresignResponse(
         String uploadUrl,
