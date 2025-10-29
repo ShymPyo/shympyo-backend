@@ -17,16 +17,16 @@ import org.springframework.web.bind.annotation.RestController;
 import shympyo.auth.user.CustomUserDetails;
 import shympyo.global.response.CommonResponse;
 import shympyo.global.response.ResponseUtil;
-import shympyo.user.dto.PresignRequest;
-import shympyo.user.dto.PresignResponse;
-import shympyo.user.service.ProfileImageService;
+import shympyo.storage.dto.PresignResponse;
+import shympyo.user.dto.UserImagePresignRequest;
+import shympyo.storage.service.ImagePresignService;
 
 @RestController
 @RequestMapping("/api/profile-image")
 @RequiredArgsConstructor
 public class ProfileImageController {
 
-    private final ProfileImageService profileImageService;
+    private final ImagePresignService profileImageService;
 
     @Operation(
             summary = "프로필 이미지 업로드용 presigned URL 발급",
@@ -82,12 +82,12 @@ public class ProfileImageController {
     )
     @PostMapping("/presign")
     public ResponseEntity<CommonResponse<PresignResponse>> createPresignedUrl(
-            @RequestBody @Valid PresignRequest request,
+            @RequestBody @Valid UserImagePresignRequest request,
             @Parameter(hidden = true)
             @AuthenticationPrincipal CustomUserDetails user
     ) {
 
-        PresignResponse response = profileImageService.createPresignedUpload(
+        PresignResponse response = profileImageService.createUserProfilePresign(
                 user.getId(),
                 request.fileExtension(),
                 request.contentType()
