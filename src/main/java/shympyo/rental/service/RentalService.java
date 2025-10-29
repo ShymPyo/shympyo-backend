@@ -68,7 +68,13 @@ public class RentalService {
         Rental rental = Rental.start(place, userRef, LocalDateTime.now());
         rentalRepository.save(rental);
 
-        publisher.publishEvent(new RentalStartedEvent(rental.getId()));
+        publisher.publishEvent(new RentalStartedEvent(
+                rental.getId(),
+                place.getId(),
+                userRef.getId(),
+                userRef.getName(),
+                rental.getStartTime()
+        ));
 
         return UserEnterResponse.from(rental);
     }
@@ -96,7 +102,11 @@ public class RentalService {
 
         rental.end(LocalDateTime.now());
 
-        publisher.publishEvent(new RentalEndedEvent(rental.getId()));
+        publisher.publishEvent(new RentalEndedEvent(
+                rental.getId(),
+                rental.getPlace().getId(),
+                rental.getEndTime()
+        ));
 
         return UserExitResponse.from(rental);
     }
