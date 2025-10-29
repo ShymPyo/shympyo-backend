@@ -22,10 +22,10 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    public TokenResponse signUp(SignUpRequest request){
+    public TokenResponse signUp(SignUpRequest request) {
 
         // 존재 여부 판단
-        if(userRepository.existsByEmail(request.getEmail())){
+        if (userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
 
@@ -117,7 +117,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserInfoResponse updateUserInfo(Long userId, UpdateUserRequest request){
+    public UserInfoResponse updateUserInfo(Long userId, UpdateUserRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
