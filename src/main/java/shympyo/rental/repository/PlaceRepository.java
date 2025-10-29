@@ -13,21 +13,24 @@ import java.util.Optional;
 public interface PlaceRepository extends JpaRepository<Place, Long> {
 
     Optional<Place> findByCode(String code);
+
+    @Query("select p from Place p where p.owner.id = :ownerId")
     Optional<Place> findByOwnerId(Long ownerId);
+
     boolean existsByIdAndOwnerId(Long placeId, Long ownerId);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select p from Place p where p.code = :code")
     Optional<Place> findByCodeForUpdate(@Param("code") String code);
 
 
-
     @Query("""
-        SELECT p
-        FROM Place p
-        WHERE p.latitude  BETWEEN :minLat AND :maxLat
-          AND p.longitude BETWEEN :minLon AND :maxLon
-          AND p.status = 'ACTIVE'
-    """)
+                SELECT p
+                FROM Place p
+                WHERE p.latitude  BETWEEN :minLat AND :maxLat
+                  AND p.longitude BETWEEN :minLon AND :maxLon
+                  AND p.status = 'ACTIVE'
+            """)
     List<Place> findInBoundingBox(
             @Param("minLat") double minLat,
             @Param("maxLat") double maxLat,

@@ -1,4 +1,10 @@
 package shympyo.rental.dto.sse;
 
-public record RentalEndedEvent(Long rentalId) {}
+import java.time.LocalDateTime;
 
+public record RentalEndedEvent(
+        Long rentalId,
+        Long placeId,
+        LocalDateTime endTime
+) {
+}

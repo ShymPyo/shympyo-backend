@@ -14,6 +14,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import shympyo.user.domain.UserRole;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -29,7 +30,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
             Long userId = jwtTokenProvider.getUserId(token);
-            CustomUserDetails userDetails = userDetailsService.loadUserById(userId);
+            String roleName = jwtTokenProvider.getRole(token);
+
+            UserRole role = UserRole.valueOf(roleName);
+
+            CustomUserDetails userDetails = new CustomUserDetails(userId, role);
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

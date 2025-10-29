@@ -1,3 +1,13 @@
 package shympyo.rental.dto.sse;
 
-public record RentalStartedEvent(Long rentalId) {}
+import java.time.LocalDateTime;
+import lombok.Getter;
+
+public record RentalStartedEvent(
+        Long rentalId,
+        Long placeId,
+        Long userId,
+        String userName,
+        LocalDateTime startTime
+) {
+}

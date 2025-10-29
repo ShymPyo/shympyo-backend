@@ -20,23 +20,26 @@ public class RentalSseNotifier {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onRentalStarted(RentalStartedEvent event) {
-        Rental r = rentalRepository.findById(event.rentalId())
-                .orElseThrow();
 
         var payload = new RentalStartedPayload(
-                r.getId(), r.getPlace().getId(), r.getUser().getId(), r.getUser().getName(), r.getStartTime()
+                event.rentalId(),
+                event.placeId(),
+                event.userId(),
+                event.userName(),
+                event.startTime()
         );
-        hub.send(r.getPlace().getId(), "rental-started", payload);
+        hub.send(event.placeId(), "rental-started", payload);
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onRentalEnded(RentalEndedEvent event) {
-        Rental r = rentalRepository.findById(event.rentalId())
-                .orElseThrow();
 
         var payload = new RentalEndedPayload(
-                r.getId(), r.getPlace().getId(), r.getEndTime()
+                event.rentalId(),
+                event.placeId(),
+                event.endTime()
         );
-        hub.send(r.getPlace().getId(), "rental-ended", payload);
+
+        hub.send(event.placeId(), "rental-ended", payload);
     }
 }
