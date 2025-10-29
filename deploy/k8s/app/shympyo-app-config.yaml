@@ -48,4 +48,7 @@ data:
   GOOGLE_TOKEN_URI: "https://oauth2.googleapis.com/token"
   GOOGLE_USER_INFO_URI: "https://www.googleapis.com/oauth2/v2/userinfo"
 
-
+  NCP_OBJECT_STORAGE_REGION: "kr-standard"
+  NCP_OBJECT_STORAGE_ENDPOINT: "https://kr.object.ncloudstorage.com"
+  NCP_OBJECT_STORAGE_BUCKET: "contest62-bucket"
+  NCP_OBJECT_STORAGE_PUBLIC_BASE_URL: "https://kr.object.ncloudstorage.com"
