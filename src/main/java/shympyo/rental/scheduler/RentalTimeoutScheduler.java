@@ -18,7 +18,7 @@ public class RentalTimeoutScheduler {
     private final RentalRepository rentalRepository;
 
     @Transactional
-    //@Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 * * * * *")
     public void markOverdueRentals() {
         LocalDateTime now = LocalDateTime.now();
         int updated = rentalRepository.markTimeExceeded(now);
@@ -26,7 +26,7 @@ public class RentalTimeoutScheduler {
     }
 
     @Transactional
-    //@Scheduled(fixedDelay = 5000)
+    @Scheduled(fixedDelay = 5000)
     public void markOverdueRentalsInBatches() {
         LocalDateTime now = LocalDateTime.now();
         int pageSize = 500;
