@@ -16,7 +16,7 @@ import shympyo.map.dto.MapDetailResponse;
 import shympyo.map.dto.NearbyListResponse;
 import shympyo.map.dto.NearbyMapResponse;
 import shympyo.map.dto.PlaceDetailResponse;
-import shympyo.map.service.MapService;
+import shympyo.map.service.MapQueryService;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MapController {
 
-    private final MapService mapService;
+    private final MapQueryService mapQueryService;
 
     @Operation(
             summary = "주변 장소 지도 조회",
@@ -65,7 +65,7 @@ public class MapController {
             )
             @RequestParam(name = "types", required = false) List<PlaceType> types
     ) {
-        return ResponseUtil.success(mapService.findNearby(user.getId(), lat, lon, radius, limit, types));
+        return ResponseUtil.success(mapQueryService.findNearby(user.getId(), lat, lon, radius, limit, types));
     }
 
 
@@ -107,7 +107,7 @@ public class MapController {
             )
             @RequestParam(name = "types", required = false) List<PlaceType> types
     ) {
-        return ResponseUtil.success(mapService.findNearbyList(user.getId(), lat, lon, radius, limit, types));
+        return ResponseUtil.success(mapQueryService.findNearbyList(user.getId(), lat, lon, radius, limit, types));
     }
 
 
@@ -120,7 +120,7 @@ public class MapController {
             @Parameter(description = "공공 쉼터 ID", example = "123")
             @PathVariable Long id
     ) {
-        return ResponseUtil.success(mapService.getMap(id));
+        return ResponseUtil.success(mapQueryService.getMap(id));
     }
 
     @Operation(
@@ -131,6 +131,6 @@ public class MapController {
     public ResponseEntity<CommonResponse<PlaceDetailResponse>> getPlace(
             @PathVariable Long id
     ) {
-        return ResponseUtil.success(mapService.getPlace(id));
+        return ResponseUtil.success(mapQueryService.getPlace(id));
     }
 }
