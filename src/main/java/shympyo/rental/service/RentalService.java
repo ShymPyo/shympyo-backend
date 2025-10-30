@@ -207,6 +207,7 @@ public class RentalService {
                         .rentalId(r.getId())
                         .placeId(r.getPlace().getId())
                         .placeName(r.getPlace().getName())
+                        .imageUrl(r.getPlace().getImageUrl())
                         .startTime(r.getStartTime())
                         .endTime(r.getEndTime())
                         .isWritten(rentalIdsWithLetter.contains(r.getId()))

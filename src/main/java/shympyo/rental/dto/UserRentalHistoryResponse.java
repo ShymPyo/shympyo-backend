@@ -22,6 +22,9 @@ public class UserRentalHistoryResponse {
     @Schema(description = "장소 이름", example = "강남역 무인 스터디룸")
     private String placeName;
 
+    @Schema(description = "장소 사진", example = "https://example.com")
+    private String imageUrl;
+
     @Schema(description = "대여 시작 시간", example = "2025-09-01T10:00:00")
     private LocalDateTime startTime;
 
