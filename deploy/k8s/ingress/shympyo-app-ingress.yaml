@@ -26,3 +26,11 @@ spec:
                 name: shympyo-service
                 port:
                   number: 8080
+
+          - path: /api/map
+            pathType: Prefix
+            backend:
+              service:
+                name: shympyo-map-service
+                port:
+                  number: 8080

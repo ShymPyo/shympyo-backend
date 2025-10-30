@@ -3,7 +3,6 @@ package shympyo.report.service;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import shympyo.map.domain.PlaceType;
 import shympyo.report.domain.*;
 import shympyo.report.repository.SanctionRepository;
 import shympyo.user.domain.User;

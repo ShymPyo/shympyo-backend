@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import shympyo.map.domain.PlaceType;
+import shympyo.report.domain.PlaceType;
 import shympyo.report.domain.Sanction;
 import shympyo.report.domain.SanctionScope;
 import shympyo.report.domain.SanctionType;
