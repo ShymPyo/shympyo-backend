@@ -4,7 +4,6 @@ package shympyo.report.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import shympyo.map.domain.PlaceType;
 import shympyo.rental.repository.RentalRepository;
 import shympyo.report.domain.*;
 import shympyo.report.dto.ProviderCreateReportRequest;

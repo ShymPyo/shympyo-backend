@@ -1,40 +1,40 @@
-package shympyo.map.port.report.impl;
+package shympyo.report.service;
+
+import java.time.LocalDateTime;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-import shympyo.map.domain.PlaceType;
-import shympyo.map.port.report.SanctionAccess;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import shympyo.report.domain.PlaceType;
 import shympyo.report.domain.SanctionScope;
 import shympyo.report.domain.SanctionType;
 import shympyo.report.repository.SanctionRepository;
 
-import java.time.LocalDateTime;
-
-@Component
+@Service
 @RequiredArgsConstructor
-public class SanctionAccessImpl implements SanctionAccess {
+@Transactional(readOnly = true)
+public class SanctionQueryService {
 
     private final SanctionRepository sanctionRepository;
 
-    @Override
-    public boolean isCategoryBlocked(Long userId, PlaceType placeType, LocalDateTime now) {
+    public boolean isCategoryBlocked(Long userId, PlaceType placeType, LocalDateTime at) {
         return sanctionRepository.existsActiveCategoryBlock(
                 userId,
                 SanctionType.BLOCK_CONTENT,
                 SanctionScope.PLACE_CATEGORY,
                 placeType,
-                now
+                at
         );
     }
 
-    @Override
-    public boolean isPlaceBlocked(Long userId, Long placeId, LocalDateTime now) {
+    public boolean isPlaceBlocked(Long userId, Long placeId, LocalDateTime at) {
         return sanctionRepository.existsActivePlaceBlock(
                 userId,
                 SanctionType.BLOCK_CONTENT,
                 SanctionScope.PLACE_ONLY,
                 placeId,
-                now
+                at
         );
     }
 }
