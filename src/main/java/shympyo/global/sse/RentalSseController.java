@@ -51,7 +51,7 @@ public class RentalSseController {
             throw new IllegalArgumentException("해당 장소가 존재하지 않습니다.");
         };
 
-        SseEmitter emitter = new SseEmitter(0L);
+        SseEmitter emitter = new SseEmitter(10 * 60 * 1000L);
         return hub.add(placeId, emitter);
     }
 }
